@@ -4,8 +4,9 @@ const consts = require('constants');
 const https = require("https");
 const webtorrent = require("webtorrent")
 const http = require("http");
-const private_key = fs.readFileSync("/etc/letsencrypt/live/butterypumpkin.com/privkey.pem");
-const full_chain = fs.readFileSync("/etc/letsencrypt/live/butterypumpkin.com/fullchain.pem");
+const config = JSON.parse(fs.readFileSync("config.json"))
+const private_key = fs.readFileSync(config.private_key_file)
+const full_chain = fs.readFileSync(config.full_chain_file)
 const security_options = consts.SSL_OP_NO_TLSv1 |
 	consts.SSL_OP_NO_TLSv1_0|
 	consts.SSL_OP_NO_TLSv1_1;
