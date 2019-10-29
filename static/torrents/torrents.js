@@ -39,14 +39,6 @@ function add_torrent(url, callback)
 	post_request("/api/torrent/add", "url="+url, callback);
 }
 
-document.getElementById("add_torrent").onclick = function(){
-	console.log("adding");
-	add_torrent(document.getElementById("magnet_link").value, function(err, result){
-		if(err)console.log(err);
-		console.log(result);
-	});
-};
-
 function update_torrent(torrent)
 {
 	let row = document.getElementById(torrent.infoHash);
@@ -63,10 +55,13 @@ function update_torrent(torrent)
 		console.log(row);
 	}
 
+	const dirpath = "https://"+window.location.hostname+"/"+torrent.path+"/"+torrent.name;
+
 	row.querySelector("#name").innerHTML = torrent.name;
 	row.querySelector("#progress").innerHTML = Math.floor(torrent.progress*100);
 	row.querySelector("#downloaded").innerHTML = Math.round(torrent.downloaded/(1024**2));
 	row.querySelector("#uploaded").innerHTML = Math.round(torrent.uploaded/(1024**2));
+	row.querySelector("#link").setAttribute("href", dirpath);
 
 }
 
@@ -94,4 +89,10 @@ function update_all_torrents()
 
 update_all_torrents();
 
-
+document.getElementById("add_torrent").onclick = function(){
+	console.log("adding");
+	add_torrent(document.getElementById("magnet_link").value, function(err, result){
+		if(err)console.log(err);
+		console.log(result);
+	});
+};

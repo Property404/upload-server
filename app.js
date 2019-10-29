@@ -103,7 +103,7 @@ app.post('/api/torrent/add', function(req, res){
 
 app.get('/api/torrent/progress', function(req, res){
 	const torrents = client.torrents;
-	const fields = ["name", "infoHash", "magnetURI", "progress", "ratio", "downloaded", "received", "uploaded", "downloadSpeed", "uploadSpeed", "ready", "paused", "length", "comment", "created", "createdBy", "timeRemaining"]
+	const fields = ["name", "infoHash", "magnetURI", "progress", "ratio", "downloaded", "received", "uploaded", "downloadSpeed", "uploadSpeed", "ready", "paused", "length", "comment", "created", "createdBy", "timeRemaining", "path"]
 
 	let torrent_info = []
 	for(const i in torrents)
