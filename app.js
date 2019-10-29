@@ -38,12 +38,19 @@ client.on("error", (error)=>{
 });
 
 // Session
-const session_secret = "farts_"+crypto.randomBytes(8).toString();
+const SESSION_SECRET = crypto.randomBytes(16).toString();
+const HOUR = 3600000
+const DAY = HOUR*24
 app.use(session({
 	secret: session_secret,
 	resave: false,
 	saveUninitialized: true,
-	cookie: {secret: true}
+	cookie: {
+		secret: true,
+		secure: true,
+		expires: new Date(Date.now() + 30*DAY),
+		maxAge: 30*DAY
+	}
 }));
 
 function isAuthorized(request)
