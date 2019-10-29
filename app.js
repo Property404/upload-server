@@ -135,7 +135,9 @@ app.post('/api/session/login', function(req, res){
 				}
 				else
 				{
-					res.redirect("/login/?fail");
+					let url = "/";
+					if(req.query.url)url=req.query.url;
+					res.redirect("/login/?fail=true&url="+url);
 				}
 			});
 		});

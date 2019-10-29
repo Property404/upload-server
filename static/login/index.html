@@ -11,8 +11,9 @@
 	<body class="text-center">
 		<form id="form" class="form-signin" action="/api/session/login" method="post">
 			<h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
-			<small id="error" class="text-danger">
-			</small>
+			<div id="error" class="alert alert-danger" hidden>
+				<strong>Invalid credentials</strong>
+			</div>
 			<label for="user" class="sr-only">Username</label>
 			<input type="text" name="user" id="user" class="form-control" placeholder="Username" required autofocus>
 			<label for="inputPassword" class="sr-only">Password</label>
@@ -28,6 +29,7 @@
 			let decode = function (s) { return decodeURIComponent(s.replace(pl, " ")); }
 			let url_params = {};
 			let match;
+console.log(url_params);
 
 			while (match = search.exec(query))
 			{
@@ -36,7 +38,8 @@
 
 			if (url_params["fail"])
 			{
-				document.getElementById("error").innerHTML = "Invalid credentials";
+				console.log("!");
+				document.getElementById("error").removeAttribute("hidden");
 			}
 			if(url_params["url"])
 			{
