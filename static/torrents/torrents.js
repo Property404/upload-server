@@ -56,10 +56,6 @@ function update_torrent(torrent)
 		row = document.getElementById("row_template").cloneNode(true);
 		row.setAttribute("id", torrent.infoHash);
 		row.removeAttribute("hidden");
-		row.querySelector("#name").innerHTML = torrent.name;
-		row.querySelector("#progress").innerHTML = Math.floor(torrent.progress*100);
-		row.querySelector("#downloaded").innerHTML = Math.round(torrent.downloaded/(1024**2));
-		row.querySelector("#uploaded").innerHTML = Math.round(torrent.uploaded/(1024**2));
 		document.getElementById("rows").appendChild(row);
 		console.log("Adding!")
 		console.log(row);
@@ -68,6 +64,11 @@ function update_torrent(torrent)
 	{
 		console.log("Updating!");
 	}
+
+	row.querySelector("#name").innerHTML = torrent.name;
+	row.querySelector("#progress").innerHTML = Math.floor(torrent.progress*100);
+	row.querySelector("#downloaded").innerHTML = Math.round(torrent.downloaded/(1024**2));
+	row.querySelector("#uploaded").innerHTML = Math.round(torrent.uploaded/(1024**2));
 
 }
 
@@ -84,7 +85,12 @@ function update_all_torrents()
 			update_torrent(torrent);
 		}
 
+		setTimeout(update_all_torrents, 500);
+
 	});
+
 }
 
 update_all_torrents();
+
+
