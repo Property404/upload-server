@@ -56,7 +56,6 @@ app.use('/public', express.static('public/'), serveIndex('public/', {'icons': tr
 
 // Determine if we should redirect to login
 app.use('/', function(req, res, next){
-	console.log(req.url);
 	if
 	(
 		isAuthorized(req) || 
@@ -78,7 +77,6 @@ app.use('/', function(req, res, next){
 	}
 	else
 	{
-		console.log("redirect");
 		res.redirect("https://"+req.headers.host+"/login/?url="+req.url);
 	}
 });
