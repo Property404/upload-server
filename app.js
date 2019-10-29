@@ -79,7 +79,7 @@ app.use('/', function(req, res, next){
 	else
 	{
 		console.log("redirect");
-		res.redirect("https://"+req.headers.host+"/login/");
+		res.redirect("https://"+req.headers.host+"/login/?url="+req.url);
 	}
 });
 
@@ -128,7 +128,10 @@ app.post('/api/session/login', function(req, res){
 			req.session.save(function(err2){
 				if(isAuthorized(req))
 				{
-					res.redirect("/");
+					if(req.query.url)
+						res.redirect(req.query.url);
+					else
+						res.redirect("/");
 				}
 				else
 				{

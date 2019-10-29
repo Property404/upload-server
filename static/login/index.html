@@ -5,11 +5,11 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 		<title>Login</title>
 
-		<link href="/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T">
+		<link href="/css/bootstrap.min.css" rel="stylesheet">
 		<link href="/css/signin.css" rel="stylesheet">
 	</head>
 	<body class="text-center">
-		<form class="form-signin" action="/api/session/login" method="post">
+		<form id="form" class="form-signin" action="/api/session/login" method="post">
 			<h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
 			<small id="error" class="text-danger">
 			</small>
@@ -22,10 +22,26 @@
 
 		<script>
 			const query = window.location.search.substring(1);
-			const vars = query.split("&");
-			if (vars.includes("fail"))
+			const pl     = /\+/g;  // Regex for replacing addition symbol with a space
+			const search = /([^&=]+)=?([^&]*)/g;
+
+			let decode = function (s) { return decodeURIComponent(s.replace(pl, " ")); }
+			let url_params = {};
+			let match;
+
+			while (match = search.exec(query))
+			{
+				url_params[decode(match[1])] = decode(match[2]);
+			}
+
+			if (url_params["fail"])
 			{
 				document.getElementById("error").innerHTML = "Invalid credentials";
+			}
+			if(url_params["url"])
+			{
+				let form = document.querySelector("#form");
+				form.setAttribute("action", form.getAttribute("action")+"?url="+url_params["url"]);
 			}
 		</script>
 	</body>
