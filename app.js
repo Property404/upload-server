@@ -88,7 +88,7 @@ app.use('/', express.static('static/'));
 
 // Torrent service
 app.post('/api/torrent/add', function(req, res){
-	const magnet_uri = req.query.url;
+	const magnet_uri = req.body.url;
 	client.add(magnet_uri, {path: './public/dtorrents/'}, function (torrent) {
 		// Got torrent metadata!
 		console.log('Client is downloading:', torrent.infoHash)
