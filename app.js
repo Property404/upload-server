@@ -48,14 +48,13 @@ app.use(session({
 
 function isAuthorized(request)
 {
-	return request.session.auth;
+	return request.session.auth === true;
 }
 
 // Serve public folder
 app.use('/public', express.static('public/'), serveIndex('public/', {'icons': true, 'view':'details', 'stylesheet':'style.css'}))
 
-// Statics:
-// First determine if we should redirect to login
+// Determine if we should redirect to login
 app.use('/', function(req, res, next){
 	console.log(req.url);
 	if
@@ -68,14 +67,23 @@ app.use('/', function(req, res, next){
 		req.url.startsWith("/api/session/")
 	)
 	{
-		next();
+		// While we're here, may as well make sure we have a secure connection
+		if(!req.secure)
+		{
+			res.redirect("https://"+req.headers.host + req.url);
+		}
+		{
+			next();
+		}
 	}
 	else
 	{
 		console.log("redirect");
-		res.redirect("/login/");
+		res.redirect("https://"+req.headers.host+"/login/");
 	}
 });
+
+// Our HTML and CSS and such
 app.use('/', express.static('static/'));
 
 // Torrent service
@@ -113,18 +121,19 @@ app.get('/api/torrent/progress', function(req, res){
 app.post('/api/session/login', function(req, res){
 	const user = req.body.user;
 	const password = req.body.password;
-	console.log("User: "+user);
-	console.log("Password: "+password);
-	console.log(req.json);
-	console.log(req.query);
 
 	db_interface.verifyUser(user, password, function(err, result)
 		{
-			console.log({err, result});
 			req.session.auth = result;
-			console.log(req.session.auth);
 			req.session.save(function(err2){
-				res.json({request: req.body});
+				if(isAuthorized(req))
+				{
+					res.redirect("/");
+				}
+				else
+				{
+					res.redirect("/login/?fail");
+				}
 			});
 		});
 
