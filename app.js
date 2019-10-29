@@ -46,30 +46,50 @@ app.use(session({
 	cookie: {secret: true}
 }));
 
+function isAuthorized(request)
+{
+	return request.session.auth;
+}
+
 // Serve public folder
 app.use('/public', express.static('public/'), serveIndex('public/', {'icons': true, 'view':'details', 'stylesheet':'style.css'}))
+
+// Statics:
+// First determine if we should redirect to login
+app.use('/', function(req, res, next){
+	console.log(req.url);
+	if
+	(
+		isAuthorized(req) || 
+		req.url.endsWith(".css") ||
+		req.url.endsWith(".js") || 
+		req.url.endsWith(".ico") || 
+		req.url.startsWith("/login/")||
+		req.url.startsWith("/api/session/")
+	)
+	{
+		next();
+	}
+	else
+	{
+		console.log("redirect");
+		res.redirect("/login/");
+	}
+});
 app.use('/', express.static('static/'));
 
 // Torrent service
 app.post('/api/torrent/add', function(req, res){
 	const magnet_uri = req.query.url;
-	if(!req.session.auth)
-	{
-		res.send("No permission to view this");
-	}
-	else
-	{
-
-		client.add(magnet_uri, {path: './public/dtorrents/'}, function (torrent) {
-			// Got torrent metadata!
-			console.log('Client is downloading:', torrent.infoHash)
-			torrent.on('done', function(){
-				console.log("finished!");
-			});
+	client.add(magnet_uri, {path: './public/dtorrents/'}, function (torrent) {
+		// Got torrent metadata!
+		console.log('Client is downloading:', torrent.infoHash)
+		torrent.on('done', function(){
+			console.log("finished!");
 		});
+	});
 
-		res.send("Adding torrent")
-	}
+	res.send("Adding torrent")
 
 });
 
@@ -111,26 +131,19 @@ app.post('/api/session/login', function(req, res){
 });
 
 app.get('/api/admin/users', function(req, res){
-	if(!req.session.auth)
-	{
-		res.send("No permission to view this");
-	}
-	else
-	{
-		console.log(req.session.auth);
-		const users = db_interface.getUsers(function(err, results){
-			if(err)
-			{
-				console.log(err);
-				res.send(err);
-			}
-			else
-			{
-				console.log(results);
-				res.send(results);
-			}
-		});
-	}
+	console.log(req.session.auth);
+	const users = db_interface.getUsers(function(err, results){
+		if(err)
+		{
+			console.log(err);
+			res.send(err);
+		}
+		else
+		{
+			console.log(results);
+			res.send(results);
+		}
+	});
 });
 
 
