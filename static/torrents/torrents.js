@@ -55,7 +55,7 @@ function update_torrent(torrent)
 		console.log(row);
 	}
 
-	const dirpath = "https://"+window.location.hostname+"/"+torrent.path+"/"+torrent.name;
+	const dirpath = "/"+torrent.path+"/"+torrent.name;
 
 	row.querySelector("#name").innerHTML = torrent.name;
 	row.querySelector("#progress").innerHTML = Math.floor(torrent.progress*100);
