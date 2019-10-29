@@ -1,5 +1,8 @@
 *
-!app.js
+!static
+!static/*
+!*.css
+!*.js
+!*.html
 !package.json
 !.gitignore
-!style.css
