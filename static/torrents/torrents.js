@@ -59,6 +59,7 @@ function update_torrent(torrent)
 		row.querySelector("#name").innerHTML = torrent.name;
 		row.querySelector("#progress").innerHTML = Math.floor(torrent.progress*100);
 		row.querySelector("#downloaded").innerHTML = Math.round(torrent.downloaded/(1024**2));
+		row.querySelector("#uploaded").innerHTML = Math.round(torrent.uploaded/(1024**2));
 		document.getElementById("rows").appendChild(row);
 		console.log("Adding!")
 		console.log(row);
