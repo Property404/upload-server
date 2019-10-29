@@ -142,6 +142,12 @@ app.post('/api/session/login', function(req, res){
 
 });
 
+app.get('/api/session/logout', function(req, res){
+	req.session.destroy(function(err){
+		res.redirect("/login");
+	})
+});
+
 app.get('/api/admin/users', function(req, res){
 	console.log(req.session.auth);
 	const users = db_interface.getUsers(function(err, results){
