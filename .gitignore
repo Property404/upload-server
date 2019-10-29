@@ -1,6 +1,7 @@
 *
 !static
 !static/*
+!*.js.map
 !*.css
 !*.js
 !*.html
