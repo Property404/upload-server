@@ -6,7 +6,7 @@ const config = JSON.parse(fs.readFileSync(server_constants.CONFIGURATION_FILE))
 const mysql = require("mysql");
 
 const ARGON2_MIN_TIME_COST = 10;
-const ARGON2_MIN_MEMORY_COST = 16*1024;//16MB
+const ARGON2_MIN_MEMORY_COST = 32*1024;//16MB
 const ARGON2_MIN_PARALLELISM = 8;
 
 const USER_TABLE_NAME = "Users";
