@@ -50,6 +50,8 @@ document.getElementById("add_torrent").onclick = function(){
 function update_torrent(torrent)
 {
 	let row = document.getElementById(torrent.infoHash);
+	if(torrent == null || torrent.infoHash == null)
+		return;
 	// If doesn't exist, create by cloning tempalate
 	if(row == null)
 	{
@@ -59,10 +61,6 @@ function update_torrent(torrent)
 		document.getElementById("rows").appendChild(row);
 		console.log("Adding!")
 		console.log(row);
-	}
-	else
-	{
-		console.log("Updating!");
 	}
 
 	row.querySelector("#name").innerHTML = torrent.name;
@@ -75,17 +73,20 @@ function update_torrent(torrent)
 function update_all_torrents()
 {
 	get_request("/api/torrent/progress", function(err, result){
-		if(err){console.log(err);return;}
-		const torrents = JSON.parse(result);
-		console.log(torrents);
-
-		for(const torrent of torrents)
+		if(err){
+			console.log(err);
+		}
+		else
 		{
-			console.log(torrent);
-			update_torrent(torrent);
+			const torrents = JSON.parse(result);
+
+			for(const torrent of torrents)
+			{
+				update_torrent(torrent);
+			}
 		}
 
-		setTimeout(update_all_torrents, 500);
+		setTimeout(update_all_torrents, 100);
 
 	});
 
