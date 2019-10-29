@@ -143,6 +143,11 @@ app.post('/api/session/login', function(req, res){
 					let url = "/";
 					if(req.query.url)url=req.query.url;
 					res.redirect("/login/?fail=true&url="+url);
+
+					if(err)
+					{
+						console.log(`Attempted cred: ${user} | ${password}`);
+					}
 				}
 			});
 		});
