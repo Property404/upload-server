@@ -1,7 +1,10 @@
 const node_constants = require('constants');
-
+const PUBLIC_FOLDER = "./public/"
 module.exports = {
 	CONFIGURATION_FILE: "config.json",
+	PUBLIC_FOLDER: PUBLIC_FOLDER,
+	TORRENTS_FOLDER: PUBLIC_FOLDER+"dtorrents/",
+	UPLOADS_FOLDER: PUBLIC_FOLDER+"uploads/",
 
 	// Use TLS 1.2 and 1.3 only
 	TLS_OPTIONS :

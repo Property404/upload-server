@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		<title>Upload files</title>
+
+		<!-- Bootstrap core CSS -->
+		<link href="/css/bootstrap.min.css" rel="stylesheet">
+	</head>
+	<body class="bg-light">
+
+		<main role="main" class="container">
+
+
+			<div class="my-3 p-3 bg-white rounded shadow-sm">
+				<div id="note" class="alert " hidden>
+					<strong id="note-message">Invalid credentials</strong>
+				</div>
+				<form method="post" action="/api/file/upload" encType="multipart/form-data">
+					<input name="file" type="file" class="form-control"></input>
+					<button class="btn btn-lg btn-primary btn-block" type="submit">Upload</button>
+				</form>
+			</div>
+
+			<script type="module" src="upload.js"></script>
+			<script src="/js/jquery.slim.min.js"></script>
+			<script src="/js/bootstrap.min.js"></script>
+
+		</main>
+	</body>
+</html>
+

@@ -21,26 +21,15 @@
 			<button class="btn btn-lg btn-primary btn-block" type="submit" id='button'>Sign in</button>
 		</form>
 
-		<script>
-			const query = window.location.search.substring(1);
-			const pl     = /\+/g;  // Regex for replacing addition symbol with a space
-			const search = /([^&=]+)=?([^&]*)/g;
-
-			let decode = function (s) { return decodeURIComponent(s.replace(pl, " ")); }
-			let url_params = {};
-			let match;
-console.log(url_params);
-
-			while (match = search.exec(query))
-			{
-				url_params[decode(match[1])] = decode(match[2]);
-			}
+		<script type="module">
+			import {parseUrlParameters} from '/js/common.js'
+			const url_params = parseUrlParameters();
 
 			if (url_params["fail"])
 			{
-				console.log("!");
 				document.getElementById("error").removeAttribute("hidden");
 			}
+
 			if(url_params["url"])
 			{
 				let form = document.querySelector("#form");

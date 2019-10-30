@@ -1,6 +1,7 @@
 // Security stuff
 const fs = require('fs');
 const crypto = require("crypto");
+const file_upload = require("express-fileupload");
 const session = require("express-session");
 const server_constants = require('./mediaserver-constants.js');
 const https = require("https");
@@ -59,7 +60,7 @@ function isAuthorized(request)
 }
 
 // Serve public folder
-app.use('/public', express.static('public/'), serveIndex('public/', {'icons': true, 'view':'details', 'stylesheet':'style.css'}))
+app.use('/public', express.static(server_constants.PUBLIC_FOLDER), serveIndex(server_constants.PUBLIC_FOLDER, {'icons': true, 'view':'details', 'stylesheet':'style.css'}))
 
 // Determine if we should redirect to login
 app.use('/', function(req, res, next){
@@ -88,13 +89,46 @@ app.use('/', function(req, res, next){
 	}
 });
 
-// Our HTML and CSS and such
+// Our static HTML and CSS and such
 app.use('/', express.static('static/'));
+
+// File upload API
+app.use(file_upload());
+app.post('/api/file/upload', function(req, res){
+
+	let redirect_to_form = function(success, message)
+	{
+		return res.redirect("/upload?success="+success+"&message="+message);
+	}
+
+	// Make sure file is valid
+	let file = null;
+	if (!req.files ||
+		Object.keys(req.files).length === 0 ||
+		(file = req.files.file) == null)
+	{
+		return redirect_to_form(false, "No files given");
+	}
+
+	// Sanitize name
+	const name = file.name.replace(/[^a-z-.~0-9]/gi, '_').toLowerCase();
+	if(name.replace(/[.]/gi, '') == "")
+		return redirect_to_form(false, "Invalid file name");
+
+	// Send to public folder
+	file.mv(server_constants.UPLOADS_FOLDER+name, function(err) {
+		if (err)
+			return redirect_to_form(false, "Failed to upload");
+
+		return redirect_to_form(true, "Success!");
+	});
+});
+
 
 // Torrent service
 app.post('/api/torrent/add', function(req, res){
 	const magnet_uri = req.body.url;
-	client.add(magnet_uri, {path: './public/dtorrents/'}, function (torrent) {
+	client.add(magnet_uri, {path: server_constants.TORRENTS_FOLDER}, function (torrent) {
 		// Got torrent metadata!
 		console.log('Client is downloading:', torrent.infoHash)
 		torrent.on('done', function(){
