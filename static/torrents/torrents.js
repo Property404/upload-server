@@ -1,50 +1,16 @@
 "use strict";
+import {httpGetRequest, httpPostRequest} from '/js/common.js'
+
 const TORRENT_PROGRESS_POLL_PERIOD = 100; // in milliseconds
-const HTTP_STATUS_OK = 200;
 const KIBIBYTE = 1024;
 const MEBIBYTE = KIBIBYTE**2;
 
-function get_request(url, callback)
+function addTorrent(url, callback)
 {
-	const xmlhttp = new XMLHttpRequest();
-	xmlhttp.open("GET", url, true);
-	xmlhttp.onreadystatechange = function()
-	{
-		if (xmlhttp.readyState == 4)
-		{
-			 if(xmlhttp.status == HTTP_STATUS_OK)
-				callback(null, xmlhttp.responseText);
-			else
-				callback(Error("Status "+xmlhttp.status));
-		}
-	}
-	xmlhttp.send();
+	httpPostRequest("/api/torrent/add", "url="+url, callback);
 }
 
-function post_request(url, parameters, callback)
-{
-	const xmlhttp = new XMLHttpRequest();
-	xmlhttp.open("POST", url, true);
-	xmlhttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-	xmlhttp.onreadystatechange = function()
-	{
-		if (xmlhttp.readyState == 4)
-		{
-			 if(xmlhttp.status == HTTP_STATUS_OK)
-				callback(null, xmlhttp.responseText);
-			else
-				callback(Error("Status "+xmlhttp.status));
-		}
-	}
-	xmlhttp.send(parameters);
-}
-
-function add_torrent(url, callback)
-{
-	post_request("/api/torrent/add", "url="+url, callback);
-}
-
-function update_torrent(torrent)
+function updateTorrent(torrent)
 {
 	if(torrent == null || torrent.infoHash == null)
 		return;
@@ -81,9 +47,9 @@ function update_torrent(torrent)
 }
 
 // Update list of torrents on screen every TORRENT_PROGRESS_POLL_PERIOD milliseconds
-function update_all_torrents()
+function updateAllTorrents()
 {
-	get_request("/api/torrent/progress", function(err, result){
+	httpGetRequest("/api/torrent/progress", function(err, result){
 		if(err){
 			console.log(err);
 		}
@@ -93,20 +59,20 @@ function update_all_torrents()
 
 			for(const torrent of torrents)
 			{
-				update_torrent(torrent);
+				updateTorrent(torrent);
 			}
 		}
 
-		setTimeout(update_all_torrents, TORRENT_PROGRESS_POLL_PERIOD);
+		setTimeout(updateAllTorrents, TORRENT_PROGRESS_POLL_PERIOD);
 
 	});
 }
 
-update_all_torrents();
+updateAllTorrents();
 
-document.getElementById("add_torrent").onclick = function(){
+document.getElementById("add_torrent_button").onclick = function(){
 	console.log("adding");
-	add_torrent(document.getElementById("magnet_link").value, function(err, result){
+	addTorrent(document.getElementById("magnet_link").value, function(err, result){
 		if(err)console.log(err);
 		console.log(result);
 	});

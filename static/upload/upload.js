@@ -1,3 +1,4 @@
+"use strict";
 import {parseUrlParameters} from '/js/common.js'
 
 const url_params = parseUrlParameters();
