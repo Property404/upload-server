@@ -102,9 +102,9 @@ app.use('/', express.static('static/'));
 app.use(file_upload());
 app.post('/api/file/upload', function(req, res){
 
-	let redirect_to_form = function(success, message)
+	let redirect_to_form = function(success, message, url)
 	{
-		return res.redirect("/upload?success="+success+"&message="+message);
+		return res.redirect(`/upload?success=${success}&message=${message}&url=${url}`);
 	}
 
 	// Make sure file is valid
@@ -126,7 +126,7 @@ app.post('/api/file/upload', function(req, res){
 		if (err)
 			return redirect_to_form(false, "Failed to upload");
 
-		return redirect_to_form(true, "Success!");
+		return redirect_to_form(true, "Success!", "/public/uploads/"+name);
 	});
 });
 

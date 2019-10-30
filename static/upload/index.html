@@ -15,7 +15,8 @@
 
 			<div class="my-3 p-3 bg-white rounded shadow-sm">
 				<div id="note" class="alert " hidden>
-					<strong id="note-message">Invalid credentials</strong>
+					<strong id="note-message"></strong>
+					<span id="note-submessage"></span>
 				</div>
 				<form method="post" action="/api/file/upload" encType="multipart/form-data">
 					<input name="file" type="file" class="form-control"></input>
