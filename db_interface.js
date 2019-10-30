@@ -32,7 +32,32 @@ const USER_TABLE_COLUMNS =
 			"type": "BOOLEAN",
 			"properties":"DEFAULT false"
 		}
-	]
+	];
+
+const TORRENT_TABLE_NAME = "Torrents";
+const TORRENT_TABLE_COLUMNS = 
+	[
+		{
+			"name":"id",
+			"type":"INT",
+			"properties": "PRIMARY KEY AUTO_INCREMENT"
+		},
+		{
+			"name":"link",
+			"type":"VARCHAR(512)",
+			"properties": "UNIQUE NOT NULL"
+		},
+		{
+			"name":"hash",
+			"type":"VARCHAR(255)",
+			"properties": "UNIQUE NOT NULL"
+		},
+		{
+			"name":"path",
+			"type": "VARCHAR(255)",
+			"properties":"NOT NULL"
+		}
+	];
 
 // Database setup
 const db_user = (
@@ -52,46 +77,62 @@ const conn = mysql.createConnection({
 	database: "mediaserver"
 });
 
-conn.connect(function(err){
-	if(err) throw err;
-
-	// Build table if it hasn't been created y et
-	let creation_query = `CREATE TABLE IF NOT EXISTS ${USER_TABLE_NAME} (`;
-	for(const i in USER_TABLE_COLUMNS)
+function createTable(name, columns, callback)
+{
+	let creation_query = `CREATE TABLE IF NOT EXISTS ${name} (`;
+	for(const i in columns)
 	{
-		const column = USER_TABLE_COLUMNS[i];
+		const column = columns[i];
 		if(i>0)creation_query+=",";
 		creation_query += `${column["name"]} ${column["type"]} ${column["properties"]}`
 	}
 	creation_query += ");"
 
-	conn.query(creation_query, function(err){
-		if(err)throw err;
+	conn.query(creation_query, callback);
+}
 
-		// If there are no rows, populate with an admin account
-		const count_query = `SELECT 1 FROM ${USER_TABLE_NAME}`;
-		conn.query(count_query, function(err, result){
-			if(result.length == 0)
-			{
-				const new_user = readline_sync.question("Desired user name: ");
-				while(true)
-				{
-					const new_pass = readline_sync.question("Password: ", {hideEchoBack:true});
-					if(new_pass != readline_sync.question("Confirm: ", {hideEchoBack:true}))
+
+let database_ready = new Promise((resolve, reject)=>{
+
+	conn.connect(function(err){
+		if(err) reject(err);
+
+		createTable(TORRENT_TABLE_NAME, TORRENT_TABLE_COLUMNS, function(err){
+			if(err) reject(err);
+
+
+			createTable(USER_TABLE_NAME, USER_TABLE_COLUMNS, function(err){
+				if(err) reject(err);
+
+				// If there are no rows, populate with an admin account
+				const count_query = `SELECT 1 FROM ${USER_TABLE_NAME}`;
+				conn.query(count_query, function(err, result){
+					if(result.length == 0)
 					{
-						console.log("Passwords don't match");
-						continue;
+						const new_user = readline_sync.question("Desired user name: ");
+						while(true)
+						{
+							const new_pass = readline_sync.question("Password: ", {hideEchoBack:true});
+							if(new_pass != readline_sync.question("Confirm: ", {hideEchoBack:true}))
+							{
+								console.log("Passwords don't match");
+								continue;
+							}
+							module.exports.addUser(new_user, new_pass, is_admin=true);
+							break;
+						}
 					}
-					module.exports.addUser(new_user, new_pass, is_admin=true);
-					break;
-				}
-			}
+
+					resolve(true);
+					
+				});
+
+
+
+			});
 		});
 
-
-
 	});
-
 });
 
 
@@ -141,3 +182,15 @@ module.exports.verifyUser = function(username, password, callback) {
 		}
 	});
 }
+
+module.exports.getTorrents = function(callback){
+	conn.query(`select * from ${TORRENT_TABLE_NAME};`, callback);
+}
+
+module.exports.addTorrent = function(torrent, callback){
+	const query = `INSERT INTO ${TORRENT_TABLE_NAME} (link, hash, path) VALUES (${conn.escape(torrent.magnetURI)}, '${torrent.infoHash}', ${conn.escape(torrent.path)});`;
+
+	conn.query(query, callback);
+}
+
+module.exports.ready = database_ready;

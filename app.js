@@ -32,12 +32,6 @@ const app = express()
 app.use(express.urlencoded({ extended: false }))
 app.use(express.json());
 
-// Torrent
-const client = new webtorrent()
-client.on("error", (error)=>{
-	console.log(error);
-});
-
 // Session
 const SESSION_SECRET = crypto.randomBytes(16).toString();
 const HOUR = 3600000
@@ -132,11 +126,43 @@ app.post('/api/file/upload', function(req, res){
 
 
 // Torrent service
+const client = new webtorrent()
+client.on("error", (error)=>{
+	console.log(error);
+});
+
+// Restore torrents from database
+db_interface.ready.then(
+	function()
+	{
+		db_interface.getTorrents(function(err, torrents){
+			if(err)throw err;
+			for (torrent of torrents)
+			{
+				client.add(torrent.link, {path: torrent.path});
+			}
+		});
+	},
+	function(err)
+	{
+		throw err;
+	}
+);
+
+// Torrent API
+
 app.post('/api/torrent/add', function(req, res){
 	const magnet_uri = req.body.url;
 	client.add(magnet_uri, {path: server_constants.TORRENTS_FOLDER}, function (torrent) {
 		// Got torrent metadata!
 		console.log('Client is downloading:', torrent.infoHash)
+
+		// Add to database
+		db_interface.addTorrent(torrent, function(err){
+			if(err)console.log(err);
+		});
+
+
 		torrent.on('done', function(){
 			console.log("finished!");
 		});
@@ -146,6 +172,7 @@ app.post('/api/torrent/add', function(req, res){
 
 });
 
+// List active WebTorrent torrents
 app.get('/api/torrent/progress', function(req, res){
 	const torrents = client.torrents;
 	const fields = ["name", "infoHash", "magnetURI", "progress", "ratio", "downloaded", "received", "uploaded", "downloadSpeed", "uploadSpeed", "ready", "paused", "length", "comment", "created", "createdBy", "timeRemaining", "path"]
@@ -161,6 +188,23 @@ app.get('/api/torrent/progress', function(req, res){
 		torrent_info.push(result)
 	}
 	res.send(torrent_info);
+});
+
+// List torrents in DB
+app.get('/api/torrent/torrents', function(req, res){
+	console.log(req.session.auth);
+	db_interface.getTorrents(function(err, results){
+		if(err)
+		{
+			console.log(err);
+			res.send(err);
+		}
+		else
+		{
+			console.log(results);
+			res.send(results);
+		}
+	});
 });
 
 app.post('/api/session/login', function(req, res){
