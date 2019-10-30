@@ -70,6 +70,7 @@ function updateAllTorrents()
 
 updateAllTorrents();
 
+// Submit link to be added to torrent list on server
 document.getElementById("add_torrent_button").onclick = function(){
 	console.log("adding");
 	addTorrent(document.getElementById("magnet_link").value, function(err, result){
@@ -77,3 +78,10 @@ document.getElementById("add_torrent_button").onclick = function(){
 		console.log(result);
 	});
 };
+
+// Autofocus input in modal
+// "Due to how HTML5 defines its semantics, the autofocus HTML attribute has no
+// effect in Bootstrap modals" - Bootstrap documentation
+$('#add_torrent_modal').on("shown.bs.modal", function(){
+	$('#magnet_link').trigger("focus");
+});

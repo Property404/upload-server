@@ -11,22 +11,24 @@
 	<body class="bg-light">
 
 		<!-- The "Add Torrent" modal lurks here in waiting-->
-		<div class="modal fade" id="AddTorrentModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal fade" id="add_torrent_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
 			<div class="modal-dialog" role="document">
 				<div class="modal-content">
 					<div class="modal-header">
-						<h5 class="modal-title" id="AddTorrentModalLabel">Add torrent</h5>
+						<h5 class="modal-title" id="add_torrent_modalLabel">Add torrent</h5>
 						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 							<span aria-hidden="true">&times;</span>
 						</button>
 					</div>
-					<div class="modal-body">
-						<input id="magnet_link" type="text" placeholder="magnet://" class="form-control"></input>
-					</div>
-					<div class="modal-footer">
-						<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-						<button id="add_torrent_button" type="button" class="btn btn-primary" data-dismiss="modal">Add</button>
-					</div>
+					<form>
+						<div class="modal-body">
+							<input id="magnet_link" type="text" placeholder="magnet://" class="form-control"></input>
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+							<button id="add_torrent_button" type="submit" class="btn btn-primary" data-dismiss="modal">Add</button>
+						</div>
+					</form>
 				</div>
 			</div>
 		</div>
@@ -43,7 +45,7 @@
 
 				<!-- Pull down "Add Torrent" modal -->
 				<small class="d-block text-right mt-3">
-					<button class="btn btn-primary" type="button" data-toggle="modal" data-target="#AddTorrentModal">+</button>
+					<button class="btn btn-primary" type="button" data-toggle="modal" data-target="#add_torrent_modal">+</button>
 				</small>
 			</div>
 
