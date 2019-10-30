@@ -42,6 +42,7 @@ client.on("error", (error)=>{
 const SESSION_SECRET = crypto.randomBytes(16).toString();
 const HOUR = 3600000
 const DAY = HOUR*24
+const MONTH = DAY*30
 app.use(session({
 	secret: SESSION_SECRET,
 	resave: false,
@@ -49,8 +50,8 @@ app.use(session({
 	cookie: {
 		secret: true,
 		secure: true,
-		expires: new Date(Date.now() + 30*DAY),
-		maxAge: 30*DAY
+		expires: new Date(Date.now() + MONTH),
+		maxAge: MONTH
 	}
 }));
 
@@ -60,6 +61,8 @@ function isAuthorized(request)
 }
 
 // Serve public folder
+// Intentionally don't redirect to HTTPS so non-browser applications can access
+// easily if there's something wrong with the certificate
 app.use('/public', express.static(server_constants.PUBLIC_FOLDER), serveIndex(server_constants.PUBLIC_FOLDER, {'icons': true, 'view':'details', 'stylesheet':'style.css'}))
 
 // Determine if we should redirect to login
@@ -79,7 +82,10 @@ app.use('/', function(req, res, next){
 		{
 			res.redirect("https://"+req.headers.host + req.url);
 		}
+		else
 		{
+			// Use HSTS
+			res.set('Strict-Transport-Security', `max-age=${MONTH}`);
 			next();
 		}
 	}
