@@ -139,7 +139,9 @@ db_interface.ready.then(
 			if(err)throw err;
 			for (torrent of torrents)
 			{
-				client.add(torrent.link, {path: torrent.path});
+				client.add(torrent.link, {path: torrent.path}, function(torrent){
+					torrent.on('done', ()=>{console.log("Torrent completed: "+torrent.name);});
+				});
 			}
 		});
 	},
@@ -163,9 +165,7 @@ app.post('/api/torrent/add', function(req, res){
 		});
 
 
-		torrent.on('done', function(){
-			console.log("finished!");
-		});
+		torrent.on('done', ()=>{console.log("Torrent completed: "+torrent.name);});
 	});
 
 	res.send("Adding torrent")
