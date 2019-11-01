@@ -3,6 +3,9 @@ import {parseUrlParameters} from '/js/common.js'
 
 const url_params = parseUrlParameters();
 
+// Remove params in URL so when we refresh we don't get the message
+window.history.replaceState({}, document.title, location.pathname);
+
 if (url_params["success"])
 {
 	const note = document.getElementById("note");
@@ -22,7 +25,6 @@ if (url_params["success"])
 		alert_class += "alert-danger";
 	note.setAttribute("class", alert_class);
 
-	// And show
+	// Display
 	note.removeAttribute("hidden");
-
 }
