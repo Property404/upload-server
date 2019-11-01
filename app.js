@@ -51,7 +51,13 @@ app.use(session({
 
 function isAuthorized(request)
 {
-	return request.session.auth === true;
+	return request.session.auth &&
+		request.session.auth.valid === true;
+}
+function isAdmin(request)
+{
+	return isAuthorized(request) &&
+		request.session.auth.user.is_admin == true;//MySQL won't return an actual boolean
 }
 
 // Serve public folder
@@ -160,7 +166,7 @@ app.post('/api/torrent/add', function(req, res){
 		console.log('Client is downloading:', torrent.infoHash)
 
 		// Add to database
-		db_interface.addTorrent(torrent, function(err){
+		db_interface.addTorrent(torrent, req.session.auth.user, false, function(err){
 			if(err)console.log(err);
 		});
 
@@ -192,7 +198,6 @@ app.get('/api/torrent/progress', function(req, res){
 
 // List torrents in DB
 app.get('/api/torrent/torrents', function(req, res){
-	console.log(req.session.auth);
 	db_interface.getTorrents(function(err, results){
 		if(err)
 		{

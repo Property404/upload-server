@@ -6,7 +6,7 @@ const config = JSON.parse(fs.readFileSync(server_constants.CONFIGURATION_FILE))
 const mysql = require("mysql");
 
 const ARGON2_MIN_TIME_COST = 10;
-const ARGON2_MIN_MEMORY_COST = 32*1024;//16MB
+const ARGON2_MIN_MEMORY_COST = 32*1024;//32MB
 const ARGON2_MIN_PARALLELISM = 8;
 
 const USER_TABLE_NAME = "Users";
@@ -33,6 +33,7 @@ const USER_TABLE_COLUMNS =
 			"properties":"DEFAULT false"
 		}
 	];
+const USER_TABLE_CONSTRAINTS = null
 
 const TORRENT_TABLE_NAME = "Torrents";
 const TORRENT_TABLE_COLUMNS = 
@@ -56,8 +57,24 @@ const TORRENT_TABLE_COLUMNS =
 			"name":"path",
 			"type": "VARCHAR(255)",
 			"properties":"NOT NULL"
+		},
+		{
+			"name":"is_paused",
+			"type": "BOOLEAN",
+			"properties":"DEFAULT false"
+		},
+		{
+			"name":"is_private",
+			"type": "BOOLEAN",
+			"properties":"DEFAULT false"
+		},
+		{
+			"name":"owner_id",
+			"type":"INT",
+			"properties": ""
 		}
 	];
+const TORRENT_TABLE_CONSTRAINTS = "CONSTRAINT `bla` FOREIGN KEY (owner_id) REFERENCES Users (id)"
 
 // Database setup
 const db_user = (
@@ -77,7 +94,7 @@ const conn = mysql.createConnection({
 	database: "mediaserver"
 });
 
-function createTable(name, columns, callback)
+function createTable(name, columns, constraints, callback)
 {
 	let creation_query = `CREATE TABLE IF NOT EXISTS ${name} (`;
 	for(const i in columns)
@@ -86,6 +103,8 @@ function createTable(name, columns, callback)
 		if(i>0)creation_query+=",";
 		creation_query += `${column["name"]} ${column["type"]} ${column["properties"]}`
 	}
+	if(constraints)
+		creation_query += ","+constraints;
 	creation_query += ");"
 
 	conn.query(creation_query, callback);
@@ -97,11 +116,11 @@ let database_ready = new Promise((resolve, reject)=>{
 	conn.connect(function(err){
 		if(err) reject(err);
 
-		createTable(TORRENT_TABLE_NAME, TORRENT_TABLE_COLUMNS, function(err){
+		createTable(TORRENT_TABLE_NAME, TORRENT_TABLE_COLUMNS, TORRENT_TABLE_CONSTRAINTS, function(err){
 			if(err) reject(err);
 
 
-			createTable(USER_TABLE_NAME, USER_TABLE_COLUMNS, function(err){
+			createTable(USER_TABLE_NAME, USER_TABLE_COLUMNS, USER_TABLE_CONSTRAINTS, function(err){
 				if(err) reject(err);
 
 				// If there are no rows, populate with an admin account
@@ -157,7 +176,7 @@ module.exports.addUser = async function(username, password, is_admin=false, call
 }
 
 module.exports.verifyUser = function(username, password, callback) {
-	const query = `SELECT hash from ${USER_TABLE_NAME} where user=${conn.escape(username)}`;
+	const query = `SELECT * FROM ${USER_TABLE_NAME} WHERE user=${conn.escape(username)}`;
 	conn.query(query, function(err, result){
 		if(err)
 		{
@@ -173,10 +192,7 @@ module.exports.verifyUser = function(username, password, callback) {
 			{
 				const stored_hash = result[0].hash;
 				argon2.verify(stored_hash, password).then(
-					function(res)
-					{
-						callback(null, res);
-					},
+					(is_valid)=>{callback(null, {valid:is_valid, user: is_valid?result[0]:null});},
 					callback);
 			}
 		}
@@ -184,11 +200,13 @@ module.exports.verifyUser = function(username, password, callback) {
 }
 
 module.exports.getTorrents = function(callback){
-	conn.query(`select * from ${TORRENT_TABLE_NAME};`, callback);
+	conn.query(`SELECT * FROM ${TORRENT_TABLE_NAME};`, callback);
 }
 
-module.exports.addTorrent = function(torrent, callback){
-	const query = `INSERT INTO ${TORRENT_TABLE_NAME} (link, hash, path) VALUES (${conn.escape(torrent.magnetURI)}, '${torrent.infoHash}', ${conn.escape(torrent.path)});`;
+module.exports.addTorrent = function(torrent, user, is_private, callback){
+	const query = 
+	`INSERT INTO ${TORRENT_TABLE_NAME} (link, hash, path, owner_id, is_private)
+	VALUES (${conn.escape(torrent.magnetURI)}, '${torrent.infoHash}', ${conn.escape(torrent.path)}, ${user.id}, ${is_private});`;
 
 	conn.query(query, callback);
 }
