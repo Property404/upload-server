@@ -74,7 +74,7 @@ const TORRENT_TABLE_COLUMNS =
 			"properties": ""
 		}
 	];
-const TORRENT_TABLE_CONSTRAINTS = "CONSTRAINT `bla` FOREIGN KEY (owner_id) REFERENCES Users (id)"
+const TORRENT_TABLE_CONSTRAINTS = "CONSTRAINT `bla` FOREIGN KEY (owner_id) REFERENCES Users (id) ON DELETE CASCADE"
 
 // Database setup
 const db_user = (
