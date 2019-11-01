@@ -17,19 +17,30 @@ function updateTorrent(torrent)
 
 	let row = document.getElementById(torrent.infoHash);
 
+	// Set torrent attributes that *don't change* 
+	// At least, not after they're ready
+	let updateStaticProperties = function(){
+		const dirpath = "/"+torrent.path+"/"+torrent.name;
+		row.querySelector("#name").innerHTML = torrent.name;
+		row.querySelector("#link").setAttribute("href", dirpath);
+	}
+
+	// Dynamic properties of the torrent
+	let updateDynamicProperties = function(){
+		row.querySelector("#progress").innerHTML = Math.floor(torrent.progress*1000)/10;
+		row.querySelector("#downloaded").innerHTML = Math.round(torrent.downloaded/MEBIBYTE);
+		row.querySelector("#uploaded").innerHTML = Math.round(torrent.uploaded/MEBIBYTE);
+	}
+
 	// If doesn't exist, create by cloning template
 	if(row == null)
 	{
-		const dirpath = "/"+torrent.path+"/"+torrent.name;
-
 		// Create torrent entry
 		row = document.getElementById("row_template").cloneNode(true);
 		row.setAttribute("id", torrent.infoHash);
 
-		// Set torrent attributes that *don't change* 
-		// At least, not after they're ready
-		row.querySelector("#name").innerHTML = torrent.name;
-		row.querySelector("#link").setAttribute("href", dirpath);
+		// Set properties
+		updateStaticProperties();
 
 		// Delete torrent when "X" is clicked
 		row.querySelector("#delete_torrent").onclick = function(e){
@@ -51,10 +62,13 @@ function updateTorrent(torrent)
 		console.log(row);
 	}
 
-	// Dynamic properties of the torrent
-	row.querySelector("#progress").innerHTML = Math.floor(torrent.progress*1000)/10;
-	row.querySelector("#downloaded").innerHTML = Math.round(torrent.downloaded/MEBIBYTE);
-	row.querySelector("#uploaded").innerHTML = Math.round(torrent.uploaded/MEBIBYTE);
+	// If torrent isn't ready, continuously update static properties, because
+	// they may not be set yet. Once the torrent is ready, we can stop this
+	// nonsense
+	if(!(row.ready))
+		updateStaticProperties();
+
+	updateDynamicProperties();
 
 }
 
