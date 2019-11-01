@@ -1,3 +1,5 @@
+"use strict";
+
 // Security stuff
 const fs = require('fs');
 const crypto = require("crypto");
@@ -141,9 +143,9 @@ client.on("error", (error)=>{
 db_interface.ready.then(
 	function()
 	{
-		db_interface.getTorrents(function(err, torrents){
+		db_interface.getAllTorrents(function(err, torrents){
 			if(err)throw err;
-			for (torrent of torrents)
+			for (let torrent of torrents)
 			{
 				client.add(torrent.link, {path: torrent.path}, function(torrent){
 					torrent.on('done', ()=>{console.log("Torrent completed: "+torrent.name);});
@@ -178,6 +180,31 @@ app.post('/api/torrent/add', function(req, res){
 
 });
 
+app.post('/api/torrent/delete', function(req, res){
+	const magnet_uri = req.body.url;
+	const delete_files = req.body.delete_files;
+	console.log(magnet_uri);
+	let torrent = client.get(magnet_uri);
+	const hash = torrent.infoHash;
+
+	db_interface.deleteTorrent(torrent, (err)=>{
+		if(err){
+			console.log("Error deleting torrent from database");
+			console.log(err);
+			return res.status(500).send(err);
+		}
+
+		// TODO: Delete from filesystem
+		console.log("Rm: "+ torrent.path)
+
+		torrent.destroy(function(err){
+			if(err)return res.status(500).send(err);
+			return res.send("OK");
+		});
+	});
+
+});
+
 // List active WebTorrent torrents
 app.get('/api/torrent/progress', function(req, res){
 	const torrents = client.torrents;
@@ -198,7 +225,7 @@ app.get('/api/torrent/progress', function(req, res){
 
 // List torrents in DB
 app.get('/api/torrent/torrents', function(req, res){
-	db_interface.getTorrents(function(err, results){
+	db_interface.getTorrents(req.session.auth.user, function(err, results){
 		if(err)
 		{
 			console.log(err);

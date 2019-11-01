@@ -33,8 +33,6 @@ const USER_TABLE_COLUMNS =
 			"properties":"DEFAULT false"
 		}
 	];
-const USER_TABLE_CONSTRAINTS = null
-
 const TORRENT_TABLE_NAME = "Torrents";
 const TORRENT_TABLE_COLUMNS = 
 	[
@@ -67,14 +65,8 @@ const TORRENT_TABLE_COLUMNS =
 			"name":"is_private",
 			"type": "BOOLEAN",
 			"properties":"DEFAULT false"
-		},
-		{
-			"name":"owner_id",
-			"type":"INT",
-			"properties": ""
 		}
 	];
-const TORRENT_TABLE_CONSTRAINTS = "CONSTRAINT `bla` FOREIGN KEY (owner_id) REFERENCES Users (id) ON DELETE CASCADE"
 
 // Database setup
 const db_user = (
@@ -94,7 +86,7 @@ const conn = mysql.createConnection({
 	database: "mediaserver"
 });
 
-function createTable(name, columns, constraints, callback)
+function createTable(name, columns, callback)
 {
 	let creation_query = `CREATE TABLE IF NOT EXISTS ${name} (`;
 	for(const i in columns)
@@ -103,8 +95,6 @@ function createTable(name, columns, constraints, callback)
 		if(i>0)creation_query+=",";
 		creation_query += `${column["name"]} ${column["type"]} ${column["properties"]}`
 	}
-	if(constraints)
-		creation_query += ","+constraints;
 	creation_query += ");"
 
 	conn.query(creation_query, callback);
@@ -116,11 +106,11 @@ let database_ready = new Promise((resolve, reject)=>{
 	conn.connect(function(err){
 		if(err) reject(err);
 
-		createTable(TORRENT_TABLE_NAME, TORRENT_TABLE_COLUMNS, TORRENT_TABLE_CONSTRAINTS, function(err){
+		createTable(TORRENT_TABLE_NAME, TORRENT_TABLE_COLUMNS, function(err){
 			if(err) reject(err);
 
 
-			createTable(USER_TABLE_NAME, USER_TABLE_COLUMNS, USER_TABLE_CONSTRAINTS, function(err){
+			createTable(USER_TABLE_NAME, USER_TABLE_COLUMNS, function(err){
 				if(err) reject(err);
 
 				// If there are no rows, populate with an admin account
@@ -145,8 +135,6 @@ let database_ready = new Promise((resolve, reject)=>{
 					resolve(true);
 					
 				});
-
-
 
 			});
 		});
@@ -199,14 +187,31 @@ module.exports.verifyUser = function(username, password, callback) {
 	});
 }
 
-module.exports.getTorrents = function(callback){
+// Return torrents that the user is allowed to see
+module.exports.getTorrents = function(user, callback){
+	if (user.is_admin)
+		module.exports.getAllTorrents(callback)
+	else
+		conn.query(`SELECT * FROM ${TORRENT_TABLE_NAME} WHERE is_private=false;`, callback);
+}
+
+// Not part of API - returns all torrents
+module.exports.getAllTorrents = function(callback){
 	conn.query(`SELECT * FROM ${TORRENT_TABLE_NAME};`, callback);
 }
 
+// Remove torrent entry from database
+module.exports.deleteTorrent = function(torrent, callback){
+	const query =`DELETE FROM ${TORRENT_TABLE_NAME} where hash='${torrent.infoHash}';`
+
+	conn.query(query, callback);
+}
+
+// Add torrent entry to database
 module.exports.addTorrent = function(torrent, user, is_private, callback){
 	const query = 
-	`INSERT INTO ${TORRENT_TABLE_NAME} (link, hash, path, owner_id, is_private)
-	VALUES (${conn.escape(torrent.magnetURI)}, '${torrent.infoHash}', ${conn.escape(torrent.path)}, ${user.id}, ${is_private});`;
+	`INSERT INTO ${TORRENT_TABLE_NAME} (link, hash, path, is_private)
+	VALUES (${conn.escape(torrent.magnetURI)}, '${torrent.infoHash}', ${conn.escape(torrent.path)}, ${is_private});`;
 
 	conn.query(query, callback);
 }

@@ -55,3 +55,46 @@ export function httpPostRequest(url, parameters, callback)
 	}
 	xmlhttp.send(parameters);
 }
+
+// Send GET request to url
+export function httpGetRequestAsync(url)
+{
+	return new Promise(function(resolve, reject){
+		const xmlhttp = new XMLHttpRequest();
+		xmlhttp.open("GET", url, true);
+		xmlhttp.onreadystatechange = function()
+		{
+			if (xmlhttp.readyState == 4)
+			{
+				 if(xmlhttp.status == HTTP_STATUS_OK)
+					resolve(xmlhttp.responseText);
+				else
+					reject(Error("Status "+xmlhttp.status));
+			}
+		}
+		xmlhttp.send();
+	});
+}
+
+// Send POST request to url with specified parameters(as a dict)
+export function httpPostRequestAsync(url, parameters)
+{
+	return new Promise(function(resolve, reject){
+		const xmlhttp = new XMLHttpRequest();
+		xmlhttp.open("POST", url, true);
+		xmlhttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+		xmlhttp.onreadystatechange = function()
+		{
+			if (xmlhttp.readyState == 4)
+			{
+				 if(xmlhttp.status == HTTP_STATUS_OK)
+					resolve(xmlhttp.responseText);
+				else
+					reject(Error("Status "+xmlhttp.status));
+			}
+		}
+		const qparams = Object.entries(parameters).
+			map(([key, val]) => `${key}=${val}`).join('&');
+		xmlhttp.send(qparams);
+	});
+}
