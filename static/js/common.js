@@ -19,82 +19,35 @@ export function parseUrlParameters(){
 	return url_params;
 }
 
-// Send GET request to url
-export function httpGetRequest(url, callback)
-{
-	const xmlhttp = new XMLHttpRequest();
-	xmlhttp.open("GET", url, true);
-	xmlhttp.onreadystatechange = function()
-	{
-		if (xmlhttp.readyState == 4)
-		{
-			 if(xmlhttp.status == HTTP_STATUS_OK)
-				callback(null, xmlhttp.responseText);
-			else
-				callback(Error("Status "+xmlhttp.status));
-		}
-	}
-	xmlhttp.send();
-}
-
-// Send POST request to url with specified parameters(as a dict)
-export function httpPostRequest(url, parameters, callback)
-{
-	const xmlhttp = new XMLHttpRequest();
-	xmlhttp.open("POST", url, true);
-	xmlhttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-	xmlhttp.onreadystatechange = function()
-	{
-		if (xmlhttp.readyState == 4)
-		{
-			 if(xmlhttp.status == HTTP_STATUS_OK)
-				callback(null, xmlhttp.responseText);
-			else
-				callback(Error("Status "+xmlhttp.status));
-		}
-	}
-	xmlhttp.send(parameters);
-}
-
-// Send GET request to url
 export function httpGetRequestAsync(url)
 {
 	return new Promise(function(resolve, reject){
-		const xmlhttp = new XMLHttpRequest();
-		xmlhttp.open("GET", url, true);
-		xmlhttp.onreadystatechange = function()
-		{
-			if (xmlhttp.readyState == 4)
-			{
-				 if(xmlhttp.status == HTTP_STATUS_OK)
-					resolve(xmlhttp.responseText);
-				else
-					reject(Error("Status "+xmlhttp.status));
-			}
+		const xhr = new XMLHttpRequest();
+		xhr.open("GET", url, true);
+		xhr.onload = ()=>{
+			if(xhr.status == HTTP_STATUS_OK)
+				resolve(xhr.responseText);
+			else
+				reject(Error("Status "+xhr.status));
 		}
-		xmlhttp.send();
+	xhr.send();
 	});
 }
 
-// Send POST request to url with specified parameters(as a dict)
 export function httpPostRequestAsync(url, parameters)
 {
 	return new Promise(function(resolve, reject){
-		const xmlhttp = new XMLHttpRequest();
-		xmlhttp.open("POST", url, true);
-		xmlhttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-		xmlhttp.onreadystatechange = function()
-		{
-			if (xmlhttp.readyState == 4)
-			{
-				 if(xmlhttp.status == HTTP_STATUS_OK)
-					resolve(xmlhttp.responseText);
-				else
-					reject(Error("Status "+xmlhttp.status));
-			}
+		const xhr = new XMLHttpRequest();
+		xhr.open("POST", url, true);
+		xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+		xhr.onload = ()=>{
+			if(xhr.status == HTTP_STATUS_OK)
+				resolve(xhr.responseText);
+			else
+				reject(Error("Status "+xhr.status));
 		}
-		const qparams = Object.entries(parameters).
+		const parsed_params = Object.entries(parameters).
 			map(([key, val]) => `${key}=${val}`).join('&');
-		xmlhttp.send(qparams);
+		xhr.send(parsed_params);
 	});
 }
