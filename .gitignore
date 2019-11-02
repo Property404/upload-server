@@ -1,8 +1,10 @@
 *
 !static
-!*.js.map
-!*.css
+!static/**/
 !*.js
+!*.js.map
+!*.mjs
 !*.html
+!*.css
 !package.json
 !.gitignore
