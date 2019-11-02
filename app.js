@@ -74,6 +74,7 @@ app.use('/', function(req, res, next){
 		isAuthorized(req) || 
 		req.url.endsWith(".css") ||
 		req.url.endsWith(".js") || 
+		req.url.endsWith(".mjs") || 
 		req.url.endsWith(".ico") || 
 		req.url.startsWith("/login/")||
 		req.url.startsWith("/api/session/")
