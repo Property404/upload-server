@@ -1,5 +1,5 @@
 "use strict";
-import {httpGetRequestAsync, httpPostRequestAsync} from '/js/common.js'
+import {httpGetRequestAsync, httpPostRequestAsync} from '/js/common.mjs'
 
 const TORRENT_PROGRESS_POLL_PERIOD = 100; // in milliseconds
 const KIBIBYTE = 1024;

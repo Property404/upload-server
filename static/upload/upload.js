@@ -1,5 +1,5 @@
 "use strict";
-import {parseUrlParameters} from '/js/common.js'
+import {parseUrlParameters} from '/js/common.mjs'
 
 const url_params = parseUrlParameters();
 
