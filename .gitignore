@@ -2,7 +2,7 @@
 !static
 !static/**/
 !*.js
-!*.js.map
+!*.map
 !*.mjs
 !*.html
 !*.css
