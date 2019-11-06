@@ -9,12 +9,16 @@
 		<link href="/css/bootstrap.min.css" rel="stylesheet">
 
 	<style>
-	@media all and (max-width: 1024px) {
+	@media all and (max-width: 720px) {
 		.mobile-fab{
 			position:fixed;
 			right:5vw;
 			bottom:5vw;
 		}
+	}
+	.torrent-action
+	{
+		background:none; border:none;
 	}
 	</style>
 	</head>
@@ -64,11 +68,16 @@
 				<!-- place something before the <p> tag and it will appear to the left -->
 				<p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">
 				<a id="link" href=""><strong class="d-block text-gray-dark" id="name">torrent-name</strong></a>
-				<strong>Progress: </strong><span id="progress"></span>%
+				<span class="progress">
+					<span id="progress" class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">...</span>
+				</span>
+				<span id="torrent_info" hidden>
 				<strong>Downloaded: </strong><span id="downloaded"></span>MB
 				<strong>Uploaded: </strong><span id="uploaded"></span>MB
+				</span>
 				</p>
-				<button id="delete_torrent" class="text-muted" style="background:none; border:none;">X</button>
+				<button id="show_torrent_info" class="text-muted torrent-action">i</button>
+				<button id="delete_torrent" class="text-muted torrent-action">x</button>
 			</div>
 
 			<script type="module" src="torrents.js"></script>

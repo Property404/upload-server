@@ -27,7 +27,11 @@ function updateTorrent(torrent)
 
 	// Dynamic properties of the torrent
 	let updateDynamicProperties = function(){
-		row.querySelector("#progress").innerHTML = Math.floor(torrent.progress*1000)/10;
+		const progress_percentage = Math.floor(torrent.progress*1000)/10
+		let progress_element = row.querySelector("#progress");
+		progress_element.innerHTML = progress_percentage+"%";
+		progress_element.setAttribute("area-valuenow", progress_percentage);
+		progress_element.setAttribute("style", "width: "+progress_percentage+"%;");
 		row.querySelector("#downloaded").innerHTML = Math.round(torrent.downloaded/MEBIBYTE);
 		row.querySelector("#uploaded").innerHTML = Math.round(torrent.uploaded/MEBIBYTE);
 	}
@@ -52,6 +56,17 @@ function updateTorrent(torrent)
 				.then((result)=>{console.log("Deleted torrent");})
 				// If something bad happens, restore visibility
 				.catch(()=>{node.removeAttribute("hidden");});
+		}
+
+		// Show extra information when "i" is clicked
+		row.querySelector("#show_torrent_info").onclick = function(e){
+			console.log(e);
+			let element = e.target.parentNode.querySelector("#torrent_info");
+			if(element.hasAttribute("hidden")){
+				element.removeAttribute("hidden");
+			}else{
+				element.setAttribute("hidden", true);
+			}
 		}
 		
 		// Append to main div
