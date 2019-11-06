@@ -7,6 +7,16 @@
 
 		<!-- Bootstrap core CSS -->
 		<link href="/css/bootstrap.min.css" rel="stylesheet">
+
+	<style>
+	@media all and (max-width: 1024px) {
+		.mobile-fab{
+			position:fixed;
+			right:5vw;
+			bottom:5vw;
+		}
+	}
+	</style>
 	</head>
 	<body class="bg-light">
 
@@ -45,7 +55,7 @@
 
 				<!-- Pull down "Add Torrent" modal -->
 				<small class="d-block text-right mt-3">
-					<button class="btn btn-primary" type="button" data-toggle="modal" data-target="#add_torrent_modal">Add Torrent</button>
+					<button class="btn btn-primary mobile-fab" type="button" data-toggle="modal" data-target="#add_torrent_modal">Add Torrent</button>
 				</small>
 			</div>
 
