@@ -21,7 +21,7 @@ function updateTorrent(torrent)
 	// At least, not after they're ready
 	let updateStaticProperties = function(){
 		const dirpath = "/"+torrent.path+"/"+torrent.name;
-		row.querySelector("#name").innerHTML = torrent.name;
+		row.querySelector("#name").innerHTML = torrent.name.replace(/\.|_/g," ");
 		row.querySelector("#link").setAttribute("href", dirpath);
 	}
 
