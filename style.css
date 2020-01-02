@@ -244,3 +244,15 @@ ul#files.view-details li.header {
     text-indent: 41px;
   }
 }
+
+@media (prefers-color-scheme: dark) {
+	body{
+		background-color: #1c1c1c;
+		color: white;
+	}
+	input{
+		background-color: #333333;
+		color: white;
+		border-color:#1c1c1c;
+	}
+}
