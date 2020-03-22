@@ -77,7 +77,9 @@ app.use('/', function(req, res, next){
 		req.url.endsWith(".mjs") || 
 		req.url.endsWith(".ico") || 
 		req.url.startsWith("/login/")||
-		req.url.startsWith("/api/session/")
+		req.url.startsWith("/ppc/")||
+		req.url.startsWith("/api/session/")||
+		req.url.startsWith("/api/public")
 	)
 	{
 		// While we're here, may as well make sure we have a secure connection
@@ -100,6 +102,15 @@ app.use('/', function(req, res, next){
 
 // Our static HTML and CSS and such
 app.use('/', express.static('static/'));
+
+// Log shit
+//
+app.post('/api/public/log', function(req, res){
+
+	console.log(req.body.data);
+	res.send("OK");
+
+});
 
 // File upload API
 app.use(file_upload());
