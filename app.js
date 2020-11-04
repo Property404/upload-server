@@ -1,13 +1,11 @@
 "use strict"
-const PREFIX = "/upload/";
-
 // Security stuff
-const fs = require('fs');
 const crypto = require("crypto");
 const file_upload = require("express-fileupload");
 const session = require("express-session");
 const http = require("http");
-const auth = require("./auth");
+const dbif = require("./dbif");
+const apimsg = require("./apimsg");
 
 // Choose port
 const args = process.argv.slice(2);
@@ -15,7 +13,6 @@ const port = args[0]?args[0]:1234;
 
 // Application
 const express    = require('express')
-const serveIndex = require('serve-index')
 const app = express()
 app.use(express.urlencoded({ extended: false }))
 app.use(express.json());
@@ -32,6 +29,7 @@ app.use(session({
 	cookie: {
 		secret: true,
 		secure: false,
+		sameSite: "strict",
 		expires: new Date(Date.now() + MONTH),
 		maxAge: MONTH
 	}
@@ -39,114 +37,93 @@ app.use(session({
 
 function isAuthorized(request)
 {
-	return request.session.auth?.valid;
+	return request.session.auth?.user_id != null;
 }
+
 function isAdmin(request)
 {
 	return isAuthorized(request) &&
-		request.session.auth.user.is_admin == true;//MySQL won't return an actual boolean
+		request.session.is_admin === true;
 }
 
 // Serve public folder
-// Intentionally don't redirect to HTTPS so non-browser applications can access
-// easily if there's something wrong with the certificate
-app.use('/files', express.static("uploads"), serveIndex("uploads", {'icons': true, 'view':'details', 'stylesheet':'style.css'}))
+app.use('/files', express.static("uploads"));
 
 // Determine if we should redirect to login
+let origin = null;
 app.use('/', function(req, res, next){
-	const authorized = isAuthorized(req);
-	if
-	(
-		isAuthorized(req) || 
-		req.url.endsWith(".css") ||
-		req.url.endsWith(".js") || 
-		req.url.endsWith(".mjs") || 
-		req.url.endsWith(".ico") || 
-		req.url.startsWith("/login/")||
-		req.url.startsWith("/api/session/")
-	)
+	origin = origin ?? req.get("origin");
+	res.header("Access-Control-Allow-Credentials", true);
+	res.header("Access-Control-Allow-Origin", origin);
+	res.header("Vary","Origin");
+	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+	res.header('Access-Control-Max-Age', 3600);
+
+	console.log(req.url);
+
+	if (isAuthorized(req) ||
+		req.url.startsWith("/authenticate") ||
+		req.method === "OPTIONS")
 	{
 		next();
 	}
 	else
 	{
-		res.redirect("/login/?url="+req.url);
+		res.status(403).send(apimsg.failure("unauthenticated"));
 	}
 });
 
-// Our static HTML and CSS and such
-app.use('/', express.static('static/'));
-
 // File upload API
-app.use(file_upload());
-app.post('/api/file/upload', function(req, res){
-
-	let redirect_to_form = function(success, message, url)
+app.use(file_upload({
+	createParentPath:true,
+	safeFileNames:true,
+	preserveExtension:true,
+}));
+app.post('/upload', async function(req, res){
+	const file = req.files[0];
+	console.log("File:",file);
+	if(!file)
 	{
-		return res.redirect(`/upload?success=${success}&message=${message}&url=${url}`);
+		res.status(400).send(apimsg.failure("No files given"));
+		return
 	}
+	const user_id = req.session.auth.user_id;
+	console.log("Bout to upload");
 
-	// Make sure file is valid
-	let file = null;
-	if (!req.files ||
-		Object.keys(req.files).length === 0 ||
-		(file = req.files.file) == null)
-	{
-		return redirect_to_form(false, "No files given");
-	}
-
-	// Sanitize name
-	const name = file.name.replace(/[^a-z-.~0-9]/gi, '_').toLowerCase();
-	if(name.replace(/[.]/gi, '') == "" || name.length < 1 || name.length > 255)
-		return redirect_to_form(false, "Invalid file name");
-
-	// Send to public folder
-	file.mv("./uploads/"+name, function(err) {
-		if (err)
-			return redirect_to_form(false, "Failed to upload");
-
-		return redirect_to_form(true, "Success!", "/files/"+name);
+	dbif.uploadFile(file, user_id).then(result=>{
+		console.log("Did it");
+		res.send(result);
+	})
+	.catch(err=>{
+		console.log("Upload error", err);
+		res.status(400).send(err)
 	});
 });
 
-
-
-
-app.post('/api/session/login', function(req, res){
-	const user = req.body.user;
+app.post('/authenticate', async function(req, res){
+	const user = req.body.username;
 	const password = req.body.password;
 
-	auth.verifyUser(user, password).then(result=>
-		{
-			req.session.auth = {valid: result};
-			req.session.save(function(err2){
-				if(err2)
-				{
-					console.log("Err:", err2);
-				}
-				if(isAuthorized(req))
-				{
-					if(req.query.url)
-						res.redirect(req.query.url);
-					else
-						res.redirect('/');
-				}
-				else
-				{
-					let url = "/";
-					console.log(`Invalid pass for ${user?.length<512?user:'<redacted>'}`);
-					if(req.query.url)url=req.query.url;
-					res.redirect("/login/?fail=true&url="+url);
-				}
-			});
-		});
-
+	dbif.verifyUser(user, password).then(result=>{
+		req.session.auth = {user_id:result.user_id, is_admin:result.admin};
+		req.session.save(err=>{
+			if(err)console.log("ERROR: ", err);
+			res.send(result);
+		}
+		);
+	})
+	.catch(err=>res.status(400).send(err));
 });
 
-app.get('/api/session/logout', function(req, res){
-	req.session.destroy(function(err){
-		res.redirect("/login");
+app.get('/files', async function (req, res){
+	dbif.getFiles(req.session.auth.user_id, req.session.auth.is_admin)
+	.then(result=> {
+		res.send(result);
 	})
+	.catch(err=>{
+		res.status(400).send(apimsg.failure(err));
+	});
+;
 });
 
 // Listen
