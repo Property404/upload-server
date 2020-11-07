@@ -1,8 +1,14 @@
 const sqlite3 = require("sqlite3");
+const fs = require("fs");
 const db = new sqlite3.Database("database");
 const auth = require("./auth");
 const crypto = require("crypto");
 const apimsg = require("./apimsg");
+
+function getFilePath(id, filename)
+{
+	return `./files/${id}/file`;
+}
 
 function sanitizeFilename(filename)
 {
@@ -13,7 +19,7 @@ function sanitizeFilename(filename)
 		return null;
 	if(filename === "." || filename === "..")
 		return null;
-	return filename.replace(/![\w\-. ]/g, "_");
+	return filename.replace(/[^\w\-. ]/g, "_");
 }
 
 function validatePair(username, password)
@@ -113,6 +119,49 @@ async function verifyUser(username, password)
 	}));
 }
 
+function deleteFile(id, owner)
+{
+	return new Promise((res,rej)=>{
+		if(!id || owner == null)
+		{
+			rej(apimsg("id or owner not given"));
+			return
+		}
+		db.get("SELECT * FROM Files WHERE id=?", id,(err, row)=>{
+			if(err)
+			{
+				rej(apimsg(err));
+				return;
+			}
+			if(!row)
+			{
+				rej(apimsg(`File with id ${id} does not exist in database`));
+				return;
+			}
+			if(row.owner != owner)
+			{
+				rej(apimsg("You don't have permission to delete this file"));
+				return;
+			}
+			db.run("DELETE FROM Files WHERE id=?", id, error=>{
+				if(error)
+				{
+					rej(apimsg({message:"Could not delete file from database", error}));
+					return;
+				}
+				fs.unlink(getFilePath(id, row.name), error=>{
+					if(error)
+					{
+						rej(apimsg({"message":"Could not delete file from system", error}));
+						return;
+					}
+					res(apimsg("Successfully deleted file"));
+				});
+			});
+		});
+	});
+}
+
 function uploadFile(file, user_id)
 {
 	return new Promise((res,rej)=>{
@@ -134,7 +183,7 @@ function uploadFile(file, user_id)
 				return;
 			}
 			const id = buffer.toString("hex");
-			file.mv(`./files/${id}/file`);
+			file.mv(getFilePath(id, name));
 			db.run("INSERT INTO Files (id, name, size, owner) VALUES (?, ?, ?, ?)",
 				id, name, file.size, user_id,
 				err=>{
@@ -189,5 +238,6 @@ main();
 module.exports={
 	verifyUser,
 	uploadFile,
-	getFiles
+	getFiles,
+	deleteFile
 }

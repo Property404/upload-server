@@ -75,11 +75,27 @@ app.use('/', function(req, res, next){
 
 // File upload API
 app.use(file_upload({
-	createParentPath:true,
-	safeFileNames:true,
-	preserveExtension:true,
+	createParentPath:true
 }));
-app.post('/upload', async function(req, res){
+
+app.post('/delete', function(req, res){
+	const id = req.body.id;
+	if(!id)
+	{
+		res.status(400).send(apimsg("No file id given"));
+		return
+	}
+	const user_id = req.session.auth.user_id;
+
+	dbif.deleteFile(id, user_id).then(result=>{
+		res.send(result);
+	})
+	.catch(err=>{
+		console.log("Deletion error", err);
+		res.status(400).send(err)
+	});
+});
+app.post('/upload', function(req, res){
 	const file = req.files[0];
 	console.log("File:",file);
 	if(!file)
@@ -100,22 +116,38 @@ app.post('/upload', async function(req, res){
 	});
 });
 
-app.post('/authenticate', async function(req, res){
+app.post('/authenticate', function(req, res){
 	const user = req.body.username;
 	const password = req.body.password;
 
 	dbif.verifyUser(user, password).then(result=>{
 		req.session.auth = {user_id:result.user_id, is_admin:result.admin};
 		req.session.save(err=>{
-			if(err)console.log("ERROR: ", err);
-			res.send(result);
+			if(err)
+			{
+				res.status(400).send(apimsg(err));
+				return;
+			}
+			res.send(apimsg(result));
 		}
 		);
 	})
 	.catch(err=>res.status(400).send(err));
 });
 
-app.get('/files', async function (req, res){
+app.post("/logout", function(req,res){
+	req.session.destroy(err=>{
+		if(err)
+		{
+			res.status(400).send(apimsg(err));
+			return;
+		}
+		res.send(apimsg("OK"));
+	});
+});
+
+
+app.get('/files', function (req, res){
 	dbif.getFiles(req.session.auth.user_id, req.session.auth.is_admin)
 	.then(result=> {
 		res.send(result);
