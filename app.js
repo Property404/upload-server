@@ -69,7 +69,7 @@ app.use('/', function(req, res, next){
 	}
 	else
 	{
-		res.status(403).send(apimsg.failure("unauthenticated"));
+		res.status(403).send(apimsg("unauthenticated"));
 	}
 });
 
@@ -84,7 +84,7 @@ app.post('/upload', async function(req, res){
 	console.log("File:",file);
 	if(!file)
 	{
-		res.status(400).send(apimsg.failure("No files given"));
+		res.status(400).send(apimsg("No files given"));
 		return
 	}
 	const user_id = req.session.auth.user_id;
@@ -121,7 +121,7 @@ app.get('/files', async function (req, res){
 		res.send(result);
 	})
 	.catch(err=>{
-		res.status(400).send(apimsg.failure(err));
+		res.status(400).send(apimsg(err));
 	});
 ;
 });

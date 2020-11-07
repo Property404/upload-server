@@ -65,13 +65,13 @@ async function newUser(username, password, admin)
 		auth.hash(password).then(hash=>{
 			if(!validatePair(username, password))
 			{
-				rej(apimsg.failure("Invalid username/password"));
+				rej(apimsg("Invalid username/password"));
 				return;
 			}
 			const prep = db.prepare("INSERT INTO Users (name, hash, admin) VALUES (?, ?, ?)");
 			prep.run(username, hash, admin??false);
 			prep.finalize();
-			res(apimsg.success(`added new ${admin?"admin":"user"}: ${username}`));
+			res(apimsg(`added new ${admin?"admin":"user"}: ${username}`));
 		});
 	}));
 }
@@ -82,18 +82,18 @@ async function verifyUser(username, password)
 	return await new Promise((res,rej)=>db.serialize(()=>{
 		if(!validatePair(username, password))
 		{
-			rej(apimsg.failure("Invalid username/password"));
+			rej(apimsg("Invalid username/password"));
 			return;
 		}
 		db.get("SELECT * FROM Users WHERE name=?", username,(err,row)=>{
 			if(err)
 			{
-				rej(apimsg.failure("Query failed"));
+				rej(apimsg("Query failed"));
 				return;
 			}
 			if(!row)
 			{
-				rej(apimsg.failure("No such username"));
+				rej(apimsg("No such username"));
 				return;
 			}
 			const id = row["id"]
@@ -102,11 +102,11 @@ async function verifyUser(username, password)
 			auth.verify(password, hash).then(matches=>{
 				if(matches)
 				{
-					res(apimsg.success({user_id: id, admin: admin}));
+					res(apimsg({user_id: id, admin: admin}));
 				}
 				else
 				{
-					rej(apimsg.failure("wrong password"));
+					rej(apimsg("wrong password"));
 				}
 			});
 		})
@@ -119,18 +119,18 @@ function uploadFile(file, user_id)
 		const name = sanitizeFilename(file.name);
 		if(!name)
 		{
-			rej(apimsg.failure("invalid filename"));
+			rej(apimsg("invalid filename"));
 			return
 		}
 		if(!user_id)
 		{
-			rej(apimsg.failure("uploadFile requires a third parameter"));
+			rej(apimsg("uploadFile requires a third parameter"));
 			return;
 		}
 		crypto.randomBytes(8, (error,buffer)=>{
 			if(error)
 			{
-				rej(apimsg.failure("randomBytes failed"));
+				rej(apimsg("randomBytes failed"));
 				return;
 			}
 			const id = buffer.toString("hex");
@@ -139,15 +139,15 @@ function uploadFile(file, user_id)
 				id, name, file.size, user_id,
 				err=>{
 					if(err){
-						rej(apimsg.failure(err));
+						rej(apimsg(err));
 						return;
 					}
 					db.get("SELECT * FROM Files WHERE id=?", id, (err, row)=>{
 						if(err){
-							rej(apimsg.failure(err));
+							rej(apimsg(err));
 							return;
 						}
-						res(apimsg.success({message:"Successfully added new file", file:row}));
+						res(apimsg({message:"Successfully added new file", file:row}));
 					});
 				}
 			);
@@ -171,7 +171,7 @@ async function getFiles(user_id, is_admin)
 				rej(failure(err));
 				return;
 			}
-			res(apimsg.success({"files": rows}));
+			res(apimsg({"files": rows}));
 		});
 	}));
 }

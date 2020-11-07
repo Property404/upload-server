@@ -1,28 +1,15 @@
-function mergeObjects(obj, extra_data)
+function apimsg(data)
 {
-	if(extra_data != null)
+	const obj = {};
+	if(data != null)
 	{
-		if(typeof extra_data == "string")
-			obj.message = extra_data;
-		else if(typeof extra_data == "object")
-			Object.assign(obj, extra_data);
+		if(typeof data == "string")
+			obj.message = data;
+		else if(typeof data == "object")
+			Object.assign(obj, data);
 		else
-			obj.extra_data = extra_data;
+			obj.data = data;
 	}
-	//return JSON.stringify(obj);
 	return obj;
 }
-function success(extra_data)
-{
-	return mergeObjects({ok:true}, extra_data);
-}
-function failure(extra_data)
-{
-	console.log("API_FAILURE: ", extra_data);
-	return mergeObjects({error:true}, extra_data);
-}
-
-module.exports = {
-	success,
-	failure
-}
+module.exports = apimsg;
