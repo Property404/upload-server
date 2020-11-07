@@ -1,0 +1,35 @@
+*{
+    box-sizing:border-box;
+}
+html, body{
+    padding:0;
+    margin:0;
+    width:100%;
+    height:100%;
+}
+
+.button-primary, .button-secondary{
+    color:white;
+    border:none;
+    background-color:transparent;
+    text-align:center;
+    border-style:none;
+    cursor:pointer;
+    user-select:none;
+    border-radius:.25rem;
+    padding:.3rem;
+    font-family:inherit;
+}
+
+.button-primary{ 
+    background-color: #007bff;
+}
+.button-primary:hover{ 
+    background-color: #0069d9;
+}
+.button-secondary{ 
+    background-color: #6c757d;
+}
+.button-secondary:hover{ 
+    background-color: #5a6268;
+}

@@ -6,5 +6,6 @@
 !*.mjs
 !*.html
 !*.css
-!package.json
+!*.json
 !.gitignore
+!upload-server-frontend
