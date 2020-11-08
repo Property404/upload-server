@@ -95,23 +95,20 @@ app.post('/delete', function(req, res){
 		res.status(400).send(err)
 	});
 });
+
 app.post('/upload', function(req, res){
-	const file = req.files?req.files[0]:null;
-	console.log("File:",file);
-	if(!file)
+	const files = req.files;
+	if(!files)
 	{
 		res.status(400).send(apimsg("No files given"));
 		return
 	}
 	const user_id = req.session.auth.user_id;
-	console.log("Bout to upload");
 
-	dbif.uploadFile(file, user_id).then(result=>{
-		console.log("Did it");
+	dbif.uploadFiles(files, user_id).then(result=>{
 		res.send(result);
 	})
 	.catch(err=>{
-		console.log("Upload error", err);
 		res.status(400).send(err)
 	});
 });

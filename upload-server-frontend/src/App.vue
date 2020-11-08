@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <div class="head">
-      <button class="emoji-shadow-button" @click="$refs.upload_modal.show">📤</button>
+      <button class="emoji-shadow-button" @click="showUploadModal">📤</button>
       <button class="emoji-shadow-button" @click="logout">exit</button>
     </div>
     <div class="file-items">
@@ -18,14 +18,21 @@
     </div>
     <Modal title="Upload" ref="upload_modal">
       <template v-slot:body>
-        {{new_filename}}
+        <div v-for="file in files_to_be_uploaded" :key="file.name">
+          {{file.name}}
+        </div>
       </template>
       <template v-slot:footer>
         <label for="file-upload" class="button-secondary">
           Select File
-          <input @change="handleFileSelect" style="display:none;" id="file-upload" type="file" class="button-secondary">
+          <input @change="handleFileSelect"
+          style="display:none;"
+          id="file-upload"
+          type="file"
+          multiple
+          >
         </label>
-        <button @click.prevent="upload" class="button-primary">Upload</button>
+        <button @click.prevent="upload" class="button-primary" :disabled="!files_to_be_uploaded">Upload</button>
       </template>
     </Modal>
     <Modal title="Error" ref="error_modal">
@@ -67,15 +74,24 @@ export default {
     return{
       loading:true,
       needs_auth:false,
-      new_filename: null,
       login_error_message:null,
       general_error_message:null,
+      disable_upload_button:true,
+      files_to_be_uploaded:[],
       files:[]
     }
   },
   methods:{
+    showUploadModal()
+    {
+      this.files_to_be_uploaded = null;
+      this.disable_upload_button = true;
+      this.$refs.upload_modal.show();
+    },
     handleFileSelect(event){
-      this.new_filename = event.target.value.replace("C:\\fakepath\\","");
+      console.log(event.target.files);
+      this.files_to_be_uploaded = event.target.files;
+      this.disable_upload_button = !this.files_to_be_uploaded;
     },
     login()
     {
@@ -110,15 +126,18 @@ export default {
     {
       const files = document.getElementById("file-upload").files;
       const form_data = new FormData();
+      this.disable_upload_button = true;
       for(let i=0;i<files.length;i++)
       {
         form_data.append(i, files[i], files[i].name);
       }
       axios.post("/upload", form_data)
       .then(result=>{
-        this.files.push(result.data.file);
+        this.files.push(...result.data.files);
+        this.$refs.upload_modal.hide();
       })
       .catch(error=>{
+      this.disable_upload_button = false;
         this.serverError(error);
       });
     },

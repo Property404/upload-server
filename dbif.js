@@ -12,7 +12,6 @@ function getFilePath(id, filename)
 
 function sanitizeFilename(filename)
 {
-	console.log({filename});
 	if(!filename || filename.length < 1 || filename.length > 128)
 		return null;
 	if(typeof filename !== "string")
@@ -195,7 +194,7 @@ function uploadFile(file, user_id)
 					.then(success=>res(success))
 					.catch(failure=>rej(failure));
 					db.get(`SELECT Files.id, Files.size, Files.name, Files.owner, Users.name AS owner_name
-					FROM Files JOIN Users On Files.owner=Users.id WHERE Files.owner=?`, user_id, (err, row)=>{
+					FROM Files JOIN Users On Files.owner=Users.id WHERE Files.id=?`, id, (err, row)=>{
 						if(err){
 							rej(apimsg(err));
 							return;
@@ -206,6 +205,18 @@ function uploadFile(file, user_id)
 			);
 		})
 	});
+}
+
+async function uploadFiles(files, user_id)
+{
+	const file_rows = [];
+	for(let i=0;files[i];i++)
+	{
+		const file = files[i];
+		const result = await uploadFile(file, user_id);
+		file_rows.push(result.file);
+	}
+	return apimsg({message: `Successfully added ${file_rows.length} files`, files:file_rows});
 }
 
 async function getFiles(user_id, is_admin)
@@ -239,7 +250,7 @@ async function main()
 main();
 module.exports={
 	verifyUser,
-	uploadFile,
+	uploadFiles,
 	getFiles,
 	deleteFile
 }
