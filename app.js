@@ -59,8 +59,6 @@ app.use('/', function(req, res, next){
 	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
 	res.header('Access-Control-Max-Age', 3600);
 
-	console.log(req.url);
-
 	if (isAuthorized(req) ||
 		req.url.startsWith("/authenticate") ||
 		req.url.startsWith("/file/") ||
@@ -159,7 +157,6 @@ app.get('/files', function (req, res){
 // Fetch file
 function fetchFile(res, id_requested, name_requested)
 {
-	console.log("fetchFile: ", id_requested, name_requested);
 	dbif.getFilePath(id_requested)
 	.then(result=>{
 		if(!name_requested)

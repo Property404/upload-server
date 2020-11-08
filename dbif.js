@@ -241,7 +241,6 @@ async function getFiles(user_id, is_admin)
 		getFilesById(user_id, is_admin, (err, rows)=>{
 			if(err)
 			{
-				console.log(err);
 				rej(apimsg(err));
 				return;
 			}
@@ -254,7 +253,6 @@ function getFilePath(id)
 {
 	return new Promise((res,rej)=>{
 		db.get("SELECT * FROM Files WHERE id=?", id, (err, row)=>{
-			console.log(row);
 			if(err){
 				rej(apimsg(err));
 				return;
@@ -269,6 +267,25 @@ function getFilePath(id)
 	});
 }
 
+async function addUserInteractively(admin)
+{
+	let username;
+	let password;
+	while(true)
+	{
+		username = readline.question("Username> ");
+		password = readline.question("Password> ", {
+			hideEchoBack:true
+		});
+		try{
+			await newUser(username, password, admin);
+			break;
+		}catch(e){
+			console.log("Inappropriate username/password");
+		}
+	}
+	await verifyUser(username, password);
+}
 async function main()
 {
 	await construct();
@@ -280,23 +297,12 @@ async function main()
 		res(rows);
 	}));
 
-	if(rows.length == 0)
-	{
-		let username;
-		let password;
-		while(true)
-		{
-			username = readline.question("Username> ");
-			password = readline.question("Password> ");
-			try{
-				await newUser(username, password, true);
-				break;
-			}catch(e){
-				console.log("Inappropriate username/password");
-			}
-		}
-		await verifyUser(username, password);
-	}
+	const args = process.argv.slice(2);
+
+	if(rows.length == 0 || args[0] === "--add-admin")
+		addUserInteractively(true);
+	else if(args[0] === "--add-user")
+		addUserInteractively(false);
 }
 main();
 module.exports={
