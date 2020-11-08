@@ -32,7 +32,7 @@
           multiple
           >
         </label>
-        <button @click.prevent="upload" class="button-primary" :disabled="!files_to_be_uploaded">Upload</button>
+        <button @click.prevent="upload" class="button-primary" :disabled="disable_upload_button">Upload</button>
       </template>
     </Modal>
     <Modal title="Error" ref="error_modal">
@@ -104,11 +104,12 @@ export default {
       this.$refs.upload_modal.show();
     },
     handleFileSelect(event){
-      console.log(event.target.files);
+      this.disable_upload_button = false;
+
+      // update this way to make sure Vue refreshes
       this.files_to_be_uploaded = [];
       for(const file of event.target.files)
         this.files_to_be_uploaded.push(file);
-      this.disable_upload_button = !this.files_to_be_uploaded;
     },
     login()
     {
