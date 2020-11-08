@@ -182,7 +182,7 @@ app.get('/file/*/*', function (req, res){
 	const path_components = req.url.split("/");
 	const id = path_components[path_components.length-2];
 	const name = path_components[path_components.length-1];
-	fetchFile(res, id, name);
+	fetchFile(res, id, decodeURIComponent(name));
 });
 app.get('/file/*', function (req, res){
 	const path_components = req.url.split("/");
