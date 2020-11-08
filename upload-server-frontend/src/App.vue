@@ -105,7 +105,9 @@ export default {
     },
     handleFileSelect(event){
       console.log(event.target.files);
-      this.files_to_be_uploaded = event.target.files;
+      this.files_to_be_uploaded = [];
+      for(const file of event.target.files)
+        this.files_to_be_uploaded.push(file);
       this.disable_upload_button = !this.files_to_be_uploaded;
     },
     login()
@@ -181,7 +183,10 @@ export default {
           this.$nextTick(()=>this.$refs.username_input.focus());
         }
         else
+        {
+          alert(err);
           this.serverError(err);
+        }
       });
     },
     serverError(error)
