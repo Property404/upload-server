@@ -12,7 +12,7 @@
       class="file-item"
       :filename="file.name"
       :size="file.size"
-      :url="file.id"
+      :url="fileUrl(file.id)"
       :owner="file.owner_name"
       />
     </div>
@@ -61,10 +61,21 @@ import Axios from "axios";
 
 // For local testing, use separate port
 // When deployed, API is behind reverse proxy on route /api
-const base_url = `${location.protocol}//${location.hostname}`+
-  (["localhost","127.0.0.1"].includes(location.hostname)?":1234":"/api");
+const base_url = `${location.protocol}//${location.hostname}`;
+let api_base_url = base_url;
+let file_base_url = base_url;
+if(["localhost", "127.0.0.1"].includes(location.hostname))
+{
+  api_base_url += ":1234";
+  file_base_url += ":1234/file";
+}
+else
+{
+  api_base_url += "/api";
+  file_base_url += "/file/";
+}
 const axios = Axios.create({
-  baseURL: base_url,
+  baseURL: api_base_url,
   withCredentials: true
 })
 
@@ -82,6 +93,10 @@ export default {
     }
   },
   methods:{
+    fileUrl(id)
+    {
+      return `${file_base_url}/${id}`
+    },
     showUploadModal()
     {
       this.files_to_be_uploaded = null;
@@ -137,7 +152,7 @@ export default {
         this.$refs.upload_modal.hide();
       })
       .catch(error=>{
-      this.disable_upload_button = false;
+        this.disable_upload_button = false;
         this.serverError(error);
       });
     },

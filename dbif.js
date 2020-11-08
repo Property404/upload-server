@@ -5,7 +5,7 @@ const auth = require("./auth");
 const crypto = require("crypto");
 const apimsg = require("./apimsg");
 
-function getFilePath(id, filename)
+function makeFilePath(id)
 {
 	return `./files/${id}/file`;
 }
@@ -148,7 +148,7 @@ function deleteFile(id, owner)
 					rej(apimsg({message:"Could not delete file from database", error}));
 					return;
 				}
-				fs.unlink(getFilePath(id, row.name), error=>{
+				fs.unlink(makeFilePath(id), error=>{
 					if(error)
 					{
 						rej(apimsg({"message":"Could not delete file from system", error}));
@@ -182,7 +182,7 @@ function uploadFile(file, user_id)
 				return;
 			}
 			const id = buffer.toString("hex");
-			file.mv(getFilePath(id, name));
+			file.mv(makeFilePath(id));
 			db.run("INSERT INTO Files (id, name, size, owner) VALUES (?, ?, ?, ?)",
 				id, name, file.size, user_id,
 				err=>{
@@ -241,6 +241,24 @@ async function getFiles(user_id, is_admin)
 	}));
 }
 
+function getFilePath(id)
+{
+	return new Promise((res,rej)=>{
+		db.get("SELECT * FROM Files WHERE id=?", id, (err, row)=>{
+			if(err){
+				rej(apimsg(err));
+				return;
+			}
+			if(!row)
+			{
+				rej(apimsg("No such file"));
+				return;
+			}
+			res(apimsg({name: row.name, path:makeFilePath(id)}));
+		});
+	});
+}
+
 async function main()
 {
 	await construct();
@@ -252,5 +270,6 @@ module.exports={
 	verifyUser,
 	uploadFiles,
 	getFiles,
-	deleteFile
+	deleteFile,
+	getFilePath
 }

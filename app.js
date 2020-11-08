@@ -63,6 +63,7 @@ app.use('/', function(req, res, next){
 
 	if (isAuthorized(req) ||
 		req.url.startsWith("/authenticate") ||
+		req.url.startsWith("/file/") ||
 		req.method === "OPTIONS")
 	{
 		next();
@@ -154,6 +155,41 @@ app.get('/files', function (req, res){
 	});
 ;
 });
+
+// Fetch file
+function fetchFile(res, id_requested, name_requested)
+{
+	console.log("fetchFile: ", id_requested, name_requested);
+	dbif.getFilePath(id_requested)
+	.then(result=>{
+		if(!name_requested)
+		{
+			res.redirect(301, `/file/${id_requested}/${result.name}`);
+			return;
+		}
+		if(name_requested != result.name)
+		{
+			res.status(404).send("Mismatch");;
+			return;
+		}
+		res.sendFile(result.path, {root:"."});
+	})
+	.catch(err=>{
+		res.status(404).send(err);
+	});
+}
+app.get('/file/*/*', function (req, res){
+	const path_components = req.url.split("/");
+	const id = path_components[path_components.length-2];
+	const name = path_components[path_components.length-1];
+	fetchFile(res, id, name);
+});
+app.get('/file/*', function (req, res){
+	const path_components = req.url.split("/");
+	const id = path_components[path_components.length-1];
+	fetchFile(res, id);
+});
+
 
 // Listen
 console.log(`Launching on port ${port}`)
