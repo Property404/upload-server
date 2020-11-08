@@ -1,5 +1,6 @@
 const sqlite3 = require("sqlite3");
 const fs = require("fs");
+const path = require("path");
 const db = new sqlite3.Database("database");
 const auth = require("./auth");
 const crypto = require("crypto");
@@ -155,7 +156,14 @@ function deleteFile(id, owner)
 						rej(apimsg({"message":"Could not delete file from system", error}));
 						return;
 					}
-					res(apimsg("Successfully deleted file"));
+					fs.rmdir(path.dirname(makeFilePath(id)), error=>{
+						if(error)
+						{
+							rej(apimsg({"message":"Could not delete directory from system", error}));
+							return;
+						}
+						res(apimsg("Successfully deleted file"));
+					});
 				});
 			});
 		});
