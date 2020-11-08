@@ -31,7 +31,7 @@
         --card-shadow-color: grey;
 		--input-bg-color: #fff;
 		--input-fg-color: #333;
-		--input-border-color: #f7f7f7;
+		--input-border-color: #ccc;
         --secondary-fg-color: #555;
 	}
 }
@@ -77,4 +77,7 @@ input[type="text"], input[type="password"]
     border-color:var(--input-border-color);
     color:var(--input-fg-color);
     border-radius:.25rem;
+    box-shadow:none;
+    border-style:solid;
+    border-width:1px;
 }
