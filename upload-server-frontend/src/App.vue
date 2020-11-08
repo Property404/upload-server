@@ -167,7 +167,7 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: var(--fg-color);
-  background-color: var(--bg-color);
+  background-color: inherit;
   width:100%;
   height:100%;
   display:flex;
