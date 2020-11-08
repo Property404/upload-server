@@ -191,7 +191,11 @@ function uploadFile(file, user_id)
 						rej(apimsg(err));
 						return;
 					}
-					db.get("SELECT * FROM Files WHERE id=?", id, (err, row)=>{
+					getFiles()
+					.then(success=>res(success))
+					.catch(failure=>rej(failure));
+					db.get(`SELECT Files.id, Files.size, Files.name, Files.owner, Users.name AS owner_name
+					FROM Files JOIN Users On Files.owner=Users.id WHERE Files.owner=?`, user_id, (err, row)=>{
 						if(err){
 							rej(apimsg(err));
 							return;
@@ -209,15 +213,16 @@ async function getFiles(user_id, is_admin)
 	function getFilesById(user_id, is_admin, callback)
 	{
 		if(is_admin)
-			db.all("SELECT * FROM Files WHERE owner=?", user_id, callback);
+			db.all("SELECT Files.id, Files.size, Files.name, Files.owner, Users.name AS owner_name FROM Files JOIN Users On Files.owner=Users.id", callback);
 		else
-			db.all("SELECT * FROM Files ", callback);
+			db.all("SELECT Files.id, Files.size, Files.name, Files.owner, Users.name AS owner_name FROM Files JOIN Users On Files.owner=Users.id WHERE Files.owner=?", user_id, callback);
 	}
 	return await new Promise((res,rej)=>db.serialize(()=>{
 		getFilesById(user_id, is_admin, (err, rows)=>{
 			if(err)
 			{
-				rej(failure(err));
+				console.log(err);
+				rej(apimsg(err));
 				return;
 			}
 			res(apimsg({"files": rows}));
@@ -227,12 +232,9 @@ async function getFiles(user_id, is_admin)
 
 async function main()
 {
-	let result;
 	await construct();
-	result = await newUser("dagan", "fishpaste", true);
-	console.log(result);
-	result = await verifyUser("dagan", "fishpaste");
-	console.log(result);
+	await newUser("dagan", "fishpaste", true);
+	await verifyUser("dagan", "fishpaste");
 }
 main();
 module.exports={
