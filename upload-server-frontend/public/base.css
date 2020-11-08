@@ -1,6 +1,41 @@
 *{
     box-sizing:border-box;
 }
+:root{
+	--fg-color: #fff;
+    --bg-color: #333;
+    --card-color: #555;
+    --card-shadow-color: #000;
+	--input-bg-color: #555;
+	--input-fg-color: #fff;
+    --input-border-color: #333;
+
+	--secondary-fg-color: #ccc;
+
+
+    --primary-btn-bg-color:#007bff;
+    --primary-btn-hover-bg-color:#0069d9;
+    --primary-btn-fg-color:white;
+    --secondary-btn-bg-color:#6c757d;
+    --secondary-btn-hover-bg-color:#5a6268;
+    --secondary-btn-fg-color:white;
+
+}
+
+/* Light Theme */
+@media(prefers-color-scheme: light) {
+	:root{
+		--fg-color: #333;
+		--bg-color: #f7f7f7;
+        --card-color: white;
+        --card-shadow-color: grey;
+		--input-bg-color: #fff;
+		--input-fg-color: #333;
+		--input-border-color: #f7f7f7;
+        --secondary-fg-color: #555;
+	}
+}
+
 html, body{
     padding:0;
     margin:0;
@@ -9,7 +44,6 @@ html, body{
 }
 
 .button-primary, .button-secondary{
-    color:white;
     border:none;
     background-color:transparent;
     text-align:center;
@@ -19,17 +53,28 @@ html, body{
     border-radius:.25rem;
     padding:.3rem;
     font-family:inherit;
+    transition:background-color .15s ease-in-out;
 }
 
 .button-primary{ 
-    background-color: #007bff;
+    color: var(--primary-btn-fg-color);
+    background-color: var(--primary-btn-bg-color);
 }
 .button-primary:hover{ 
-    background-color: #0069d9;
+    background-color: var(--primary-btn-hover-bg-color);
 }
 .button-secondary{ 
-    background-color: #6c757d;
+    color: var(--secondary-btn-fg-color);
+    background-color: var(--secondary-btn-bg-color);
 }
 .button-secondary:hover{ 
-    background-color: #5a6268;
+    background-color: var(--secondary-btn-hover-bg-color);
+}
+
+input[type="text"], input[type="password"]
+{
+    background-color:var(--input-bg-color);
+    border-color:var(--input-border-color);
+    color:var(--input-fg-color);
+    border-radius:.25rem;
 }

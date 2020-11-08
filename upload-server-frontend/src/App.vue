@@ -32,8 +32,8 @@
       <form>
         <h1>Please Sign In</h1>
         <div v-show="login_error_message">{{login_error_message}}</div>
-        <input id="username-input" type="text"/>
-        <input id="password-input" type="password"/>
+        <input id="username-input" type="text" autofocus required/>
+        <input id="password-input" type="password" required/>
         <button @click.prevent="login" class="button-primary" type="submit">Submit</button>
       </form>
     </div>
@@ -158,10 +158,13 @@ export default {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
-  color: #2c3e50;
-  background-color: #eee;
+  color: var(--fg-color);
+  background-color: var(--bg-color);
   width:100%;
   height:100%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
 }
 .head{
   margin:0;
@@ -182,8 +185,8 @@ export default {
   display:flex;
   flex-direction:column;
   justify-content:space-between;
-  margin:0rem .25rem;
   margin-top:.25rem;
+  width:97%;
   .file-item{
     margin-bottom:.35rem;
   }
@@ -198,12 +201,12 @@ export default {
 }
 #entry-backdrop{
   @extend .fullscreen;
-  background-color:#1c1c1c;
+  background-color:var(--bg-color);
   z-index:300;
 }
 #login-screen{
   @extend .fullscreen;
-  color:white;
+  color:var(--fg-color);
   z-index:400;
   display:flex;
   justify-content:center;
@@ -211,6 +214,16 @@ export default {
   form{
     display:flex;
     flex-direction:column;
+    h1{
+      margin-bottom:.5rem;
+    }
+    input{
+      padding:.5rem;
+    }
+    button{
+      margin-top:.5rem;
+      padding:.5rem;
+    }
   }
 }
 .emoji-shadow-button
@@ -218,10 +231,19 @@ export default {
   background-color:transparent;
   border:none;
   color:transparent;
-  text-shadow: 0px 0px darkgrey;
+  text-shadow: 0px 0px var(--secondary-fg-color);
   cursor:pointer;
   &:hover{
-    text-shadow:0px 0px black;
+    text-shadow:0px 0px var(--fg-color);
+  }
+}
+@media (min-width:1200px)
+{
+  .head{
+    max-width:60%;
+  }
+  .file-items{
+    max-width:60%;
   }
 }
 </style>

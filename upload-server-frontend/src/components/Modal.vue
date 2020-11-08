@@ -64,10 +64,15 @@
             top:4px;
             right:4px;
             background-color:transparent;
+            color:var(--secondary-fg-color);
             border:none;
             cursor:pointer;
             font-size:1.5rem;
             text-align:center;
+            &:hover{
+                font-weight:bold;
+                color: var(--fg-color);
+            }
        }
     }
     .modal-backdrop
@@ -80,9 +85,9 @@
     .modal-dialog{
         display:flex;
         flex-direction:column;
-        background-color:white;
+        background-color:var(--card-color);
         border-radius:9px;
-        box-shadow: 4px 4px 4px grey;
+        box-shadow: 4px 4px 4px var(--card-shadow-color);
         margin:auto;
         height:99%;
         width:99%;

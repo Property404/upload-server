@@ -47,10 +47,11 @@ export default {
 .file-item
 {
   display:block;
-  background-color:white;
+  background-color:var(--card-color);
+  color:var(--fg-color);
   margin:0;
   padding:.25rem;
-  box-shadow: 4px 4px 4px grey;
+  box-shadow: 4px 4px 4px var(--card-shadow-color);
   border-radius: 10px;
   user-select:none;
   text-align:left;
@@ -64,6 +65,7 @@ export default {
   max-width:80%;
   overflow:hidden;
   text-overflow:ellipsis;
+  a{color:inherit;}
 }
 .file-item-delete
 {
@@ -72,11 +74,12 @@ export default {
   right:4px;
   background-color:inherit;
   border:none;
+  color: var(--secondary-fg-color);
   cursor:pointer;
-}
-.file-item-delete:hover
-{
-  font-weight:bold;
+  &:hover{
+    font-weight:bold;
+    color: var(--fg-color);
+  }
 }
 
 </style>
