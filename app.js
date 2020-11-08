@@ -96,7 +96,7 @@ app.post('/delete', function(req, res){
 	});
 });
 app.post('/upload', function(req, res){
-	const file = req.files[0];
+	const file = req.files?req.files[0]:null;
 	console.log("File:",file);
 	if(!file)
 	{
