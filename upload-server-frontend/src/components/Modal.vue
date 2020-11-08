@@ -21,7 +21,7 @@
         name: "Modal",
         data(){
             return{
-                visible:true
+                visible:false
             }
         },
         methods:{
