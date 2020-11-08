@@ -4,6 +4,7 @@ const db = new sqlite3.Database("database");
 const auth = require("./auth");
 const crypto = require("crypto");
 const apimsg = require("./apimsg");
+const readline= require("readline-sync");
 
 function makeFilePath(id)
 {
@@ -175,7 +176,7 @@ function uploadFile(file, user_id)
 			rej(apimsg("uploadFile requires a third parameter"));
 			return;
 		}
-		crypto.randomBytes(8, (error,buffer)=>{
+		crypto.randomBytes(5, (error,buffer)=>{
 			if(error)
 			{
 				rej(apimsg("randomBytes failed"));
@@ -245,6 +246,7 @@ function getFilePath(id)
 {
 	return new Promise((res,rej)=>{
 		db.get("SELECT * FROM Files WHERE id=?", id, (err, row)=>{
+			console.log(row);
 			if(err){
 				rej(apimsg(err));
 				return;
@@ -262,8 +264,31 @@ function getFilePath(id)
 async function main()
 {
 	await construct();
-	await newUser("dagan", "fishpaste", true);
-	await verifyUser("dagan", "fishpaste");
+	const rows = await new Promise((res, rej)=>db.all("SELECT * FROM Users", (err, rows)=>{
+		if(err)
+		{
+			rej(err);
+		}
+		res(rows);
+	}));
+
+	if(rows.length == 0)
+	{
+		let username;
+		let password;
+		while(true)
+		{
+			username = readline.question("Username> ");
+			password = readline.question("Password> ");
+			try{
+				await newUser(username, password, true);
+				break;
+			}catch(e){
+				console.log("Inappropriate username/password");
+			}
+		}
+		await verifyUser(username, password);
+	}
 }
 main();
 module.exports={
