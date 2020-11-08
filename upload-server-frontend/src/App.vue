@@ -12,7 +12,9 @@
       class="file-item"
       :filename="file.name"
       :size="file.size"
-      :url="file.id"/>
+      :url="file.id"
+      :owner="file.owner_name"
+      />
     </div>
     <Modal title="Upload" ref="upload_modal">
       <template v-slot:body>
@@ -32,7 +34,7 @@
       <form>
         <h1>Please Sign In</h1>
         <div v-show="login_error_message">{{login_error_message}}</div>
-        <input id="username-input" type="text" autofocus required/>
+        <input id="username-input" ref="username_input" type="text" autofocus/>
         <input id="password-input" type="password" required/>
         <button @click.prevent="login" class="button-primary" type="submit">Submit</button>
       </form>
@@ -91,6 +93,7 @@ export default {
       .then(()=>{
         this.files.length = 0;
         this.needs_auth = true;
+        this.$nextTick(()=>this.$refs.username_input.focus());
         this.loading = true;
       })
       .catch(err=>{
@@ -135,7 +138,10 @@ export default {
       .catch(err=>{
         // We're not logged in
         if(err.response?.status === 403)
+        {
           this.needs_auth = true;
+          this.$nextTick(()=>this.$refs.username_input.focus());
+        }
         else
           alert(err.response?.data || err)
       });
@@ -144,6 +150,8 @@ export default {
   beforeMount()
   {
     this.fetchFileList();
+  },
+  mounted(){
   },
   components: {
     FileItem,
@@ -240,10 +248,10 @@ export default {
 @media (min-width:1200px)
 {
   .head{
-    max-width:60%;
+    max-width:50%;
   }
   .file-items{
-    max-width:60%;
+    max-width:50%;
   }
 }
 </style>

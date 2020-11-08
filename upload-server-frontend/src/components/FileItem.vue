@@ -1,7 +1,11 @@
 <template>
   <div class="file-item" href="#">
     <div class="file-item-name"><a :href="url">{{filename}}</a></div>
-    <div class="file-item-size">{{parseSize(size)}}</div>
+    <div class="file-item-details">
+    <span class="file-item-size">Size: {{parseSize(size)}}</span>
+    &nbsp;
+    <span class="file-item-size">Owner: {{owner}}</span>
+    </div>
     <button @click="emitDelete" class="file-item-delete">X</button>
   </div>
 </template>
@@ -15,7 +19,8 @@ export default {
   props: {
     filename: String,
     size: Number,
-    url: String
+    url: String,
+    owner: String
   },
   methods:
   {
