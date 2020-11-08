@@ -51,18 +51,20 @@
     align-items:center;
     z-index:100;
     .modal-header{
-       display:flex;
-       justify-content:center;
-       text-align:center;
        font-size:1.5rem;
        border-bottom: 1px solid rgba(0,0,0,0.25);
        width:100%;
        margin:0;
        position:relative;
+       
+       .modal-title{
+           display:inline-block;
+       }
        .modal-close-button{
+            display:inline-block;
+            top:-.25rem;
+            right:0;
             position:absolute;
-            top:4px;
-            right:4px;
             background-color:transparent;
             color:var(--secondary-fg-color);
             border:none;

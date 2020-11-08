@@ -28,6 +28,11 @@
         <button @click.prevent="upload" class="button-primary">Upload</button>
       </template>
     </Modal>
+    <Modal title="Error" ref="error_modal">
+      <template v-slot:body>
+        {{general_error_message}}
+      </template>
+    </Modal>
     <div v-if="loading" id="entry-backdrop">
     </div>
     <div id="login-screen" v-if="needs_auth">
@@ -64,6 +69,7 @@ export default {
       needs_auth:false,
       new_filename: null,
       login_error_message:null,
+      general_error_message:null,
       files:[]
     }
   },
@@ -96,10 +102,8 @@ export default {
         this.$nextTick(()=>this.$refs.username_input.focus());
         this.loading = true;
       })
-      .catch(err=>{
-        const message = err.response?.data?.message || err;
-        console.log(err.response);
-        this.login_error_message = message;
+      .catch(error=>{
+        this.serverError(error);
       });
     },
     upload()
@@ -115,7 +119,7 @@ export default {
         this.files.push(result.data.file);
       })
       .catch(error=>{
-        console.log("Upload error: ", error.response.data)
+        this.serverError(error);
       });
     },
     deleteFile(id)
@@ -124,7 +128,7 @@ export default {
         const index = this.files.findIndex(element=>element.id==id);
         this.files.splice(index, 1);
       }).catch(error=>{
-        alert(error);
+        this.serverError(error);
       })
     },
     fetchFileList()
@@ -143,8 +147,17 @@ export default {
           this.$nextTick(()=>this.$refs.username_input.focus());
         }
         else
-          alert(err.response?.data || err)
+          this.serverError(err);
       });
+    },
+    serverError(error)
+    {
+        let message = error?.response?.data
+          ??error?.response
+          ??error;
+        message = message?.message || message;
+        this.general_error_message = message;
+        this.$refs.error_modal.show();
     }
   },
   beforeMount()
