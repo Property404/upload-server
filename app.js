@@ -52,6 +52,8 @@ app.use('/files', express.static("uploads"));
 // Determine if we should redirect to login
 let origin = null;
 app.use('/', function(req, res, next){
+	req.url = req.url.replace("//","/");
+
 	origin = origin ?? req.get("origin");
 	res.header("Access-Control-Allow-Credentials", true);
 	res.header("Access-Control-Allow-Origin", origin);
