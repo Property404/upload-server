@@ -1,5 +1,6 @@
 "use strict"
 // Security stuff
+const mime = require("mime-types");
 const crypto = require("crypto");
 const file_upload = require("express-fileupload");
 const session = require("express-session");
@@ -171,7 +172,14 @@ function fetchFile(res, id_requested, name_requested)
 			res.status(404).send("Mismatch");;
 			return;
 		}
-		res.sendFile(result.path, {root:"."});
+		const mime_type = mime.lookup(name_requested) ||
+			"application/octet-stream";
+		res.sendFile(result.path, {
+			root:".",
+			headers:{
+				"Content-Type":mime_type
+			}
+		});
 	})
 	.catch(err=>{
 		res.status(404).send(err);
