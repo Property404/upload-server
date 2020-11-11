@@ -120,7 +120,7 @@ async function verifyUser(username, password)
 	}));
 }
 
-function deleteFile(id, owner)
+function deleteFile(id, owner, admin)
 {
 	return new Promise((res,rej)=>{
 		if(!id || owner == null)
@@ -139,7 +139,7 @@ function deleteFile(id, owner)
 				rej(apimsg(`File with id ${id} does not exist in database`));
 				return;
 			}
-			if(row.owner != owner)
+			if(!admin && row.owner != owner)
 			{
 				rej(apimsg("You don't have permission to delete this file"));
 				return;

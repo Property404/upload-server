@@ -88,8 +88,9 @@ app.post('/delete', function(req, res){
 		return
 	}
 	const user_id = req.session.auth.user_id;
+	const admin = req.session.auth.is_admin;
 
-	dbif.deleteFile(id, user_id).then(result=>{
+	dbif.deleteFile(id, user_id, admin).then(result=>{
 		res.send(result);
 	})
 	.catch(err=>{
