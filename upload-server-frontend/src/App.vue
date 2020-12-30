@@ -72,7 +72,7 @@ if(["localhost", "127.0.0.1"].includes(location.hostname))
 else
 {
   api_base_url += "/api";
-  file_base_url += "/file/";
+  file_base_url += "/file";
 }
 const axios = Axios.create({
   baseURL: api_base_url,
