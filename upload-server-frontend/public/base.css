@@ -61,21 +61,15 @@ html, body{
     color: var(--primary-btn-fg-color);
     background-color: var(--primary-btn-bg-color);
 }
-.button-primary:hover{ 
+.button-primary:hover:not([disabled]):not([data-disabled=true]){ 
     background-color: var(--primary-btn-hover-bg-color);
 }
 .button-secondary{ 
     color: var(--secondary-btn-fg-color);
     background-color: var(--secondary-btn-bg-color);
 }
-.button-secondary:hover{ 
+.button-secondary:hover:not([disabled]):not([data-disabled=true]){ 
     background-color: var(--secondary-btn-hover-bg-color);
-}
-
-button[disabled]
-{
-    opacity:50%;
-    cursor:default;
 }
 
 input[type="text"], input[type="password"]
@@ -87,4 +81,10 @@ input[type="text"], input[type="password"]
     box-shadow:none;
     border-style:solid;
     border-width:1px;
+}
+
+button[disabled], label[data-disabled=true]
+{
+    opacity:50%;
+    cursor:default;
 }

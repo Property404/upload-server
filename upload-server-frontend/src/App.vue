@@ -23,12 +23,13 @@
         </div>
       </template>
       <template v-slot:footer>
-        <label for="file-upload" class="button-secondary">
+        <label for="file-upload" class="button-secondary" :data-disabled="disable_file_select">
           Select File
           <input @change="handleFileSelect"
           style="display:none;"
           id="file-upload"
           type="file"
+          :disabled="disable_file_select"
           multiple
           >
         </label>
@@ -88,6 +89,7 @@ export default {
       login_error_message:null,
       general_error_message:null,
       disable_upload_button:true,
+      disable_file_select:false,
       files_to_be_uploaded:[],
       files:[]
     }
@@ -101,6 +103,7 @@ export default {
     {
       this.files_to_be_uploaded = null;
       this.disable_upload_button = true;
+      this.disable_file_select = false;
       this.$refs.upload_modal.show();
     },
     handleFileSelect(event){
@@ -145,6 +148,7 @@ export default {
       const files = document.getElementById("file-upload").files;
       const form_data = new FormData();
       this.disable_upload_button = true;
+      this.disable_file_select = true;
       for(let i=0;i<files.length;i++)
       {
         form_data.append(i, files[i], files[i].name);
@@ -156,6 +160,7 @@ export default {
       })
       .catch(error=>{
         this.disable_upload_button = false;
+        this.disable_file_select = false;
         this.serverError(error);
       });
     },
