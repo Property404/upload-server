@@ -174,12 +174,11 @@ export default {
           {
            onUploadProgress:
            (progressEvent)=>{
-              const percentActual = 100*progressEvent.loaded/progressEvent.total;
-              const percentCompleted = Math.round((percentActual * 10))/10;
+              const percent= 100*progressEvent.loaded/progressEvent.total;
 
-              if(percentCompleted>this.files_to_be_uploaded[i].upload_progress)
+              if(percent>this.files_to_be_uploaded[i].upload_progress)
               {
-                this.files_to_be_uploaded[i].upload_progress = percentCompleted;
+                this.files_to_be_uploaded[i].upload_progress = percent;
 
                 // Force an update
                 //this.files_to_be_uploaded.push(this.files_to_be_uploaded[0]);

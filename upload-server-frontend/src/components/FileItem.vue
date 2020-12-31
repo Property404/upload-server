@@ -60,7 +60,8 @@ export default {
       if(this.status === "not-started")
         return "";
       else if(this.status === "in-progress")
-        return this.progress+"%";
+        // Display with 1 decimal place if not 0 or 100
+        return this.progress.toFixed((this.progress>0 && this.progress<100)?1:0)+"%";
       else
         return "done";
     },
