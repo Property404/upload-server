@@ -16,15 +16,21 @@
       :owner="file.owner_name"
       />
     </div>
-    <Modal title="Upload" ref="upload_modal">
+    <Modal title="Upload" ref="upload_modal" class="upload-modal">
       <template v-slot:body>
-        <div v-for="file in files_to_be_uploaded" :key="file.name">
-          {{file.name}}
-        </div>
+        <FileItem
+        v-for="file in files_to_be_uploaded"
+        @delete="removeFileCandidate(file.id)"
+        :key="file.id"
+        :filename="file.name"
+        :size="file.size"
+        :status="file.upload_status"
+        :progress="file.upload_progress"
+        />
       </template>
       <template v-slot:footer>
         <label for="file-upload" class="button-secondary" :data-disabled="disable_file_select">
-          Select File
+          Select Files
           <input @change="handleFileSelect"
           style="display:none;"
           id="file-upload"
@@ -112,7 +118,12 @@ export default {
       // update this way to make sure Vue refreshes
       this.files_to_be_uploaded = [];
       for(const file of event.target.files)
+      {
+        file.upload_status = "not-started";
+        file.upload_progress = 0;
+        file.id = Math.floor(Math.random()*(2**32));
         this.files_to_be_uploaded.push(file);
+      }
     },
     login()
     {
@@ -145,17 +156,47 @@ export default {
     },
     upload()
     {
-      const files = document.getElementById("file-upload").files;
-      const form_data = new FormData();
       this.disable_upload_button = true;
       this.disable_file_select = true;
+
+      const promises = [];
+      const files = this.files_to_be_uploaded;
+
       for(let i=0;i<files.length;i++)
       {
-        form_data.append(i, files[i], files[i].name);
+        const form_data = new FormData();
+        form_data.append(0, files[i], files[i].name);
+        this.files_to_be_uploaded[i].upload_status = "in-progress"
+        this.files_to_be_uploaded[i].owner = 3
+
+        promises.push(
+          axios.post("/upload", form_data, 
+          {
+           onUploadProgress:
+           (progressEvent)=>{
+              const percentActual = 100*progressEvent.loaded/progressEvent.total;
+              const percentCompleted = Math.round((percentActual * 10))/10;
+
+              if(percentCompleted>this.files_to_be_uploaded[i].upload_progress)
+              {
+                this.files_to_be_uploaded[i].upload_progress = percentCompleted;
+
+                // Force an update
+                //this.files_to_be_uploaded.push(this.files_to_be_uploaded[0]);
+                this.files_to_be_uploaded.push({});
+                this.files_to_be_uploaded.pop();
+              }
+           }
+          })
+          .then(result=>{
+            this.files_to_be_uploaded[i].upload_status = "completed"
+            this.files.push(...result.data.files);
+          })
+        );
       }
-      axios.post("/upload", form_data)
-      .then(result=>{
-        this.files.push(...result.data.files);
+
+      Promise.all(promises)
+      .then(()=>{
         this.$refs.upload_modal.hide();
       })
       .catch(error=>{
@@ -163,6 +204,13 @@ export default {
         this.disable_file_select = false;
         this.serverError(error);
       });
+    },
+    removeFileCandidate(id)
+    {
+      const index = this.files_to_be_uploaded.findIndex(element=>element.id==id);
+      console.log(index)
+      this.files_to_be_uploaded.splice(index, 1);
+      console.log("Remove "+id)
     },
     deleteFile(id)
     {
@@ -247,6 +295,23 @@ export default {
   }
 }
 
+.file-to-be-uploaded
+{
+  display:block;
+  background-color:var(--card-color);
+  border: 1px solid grey;
+  color:var(--fg-color);
+  margin:.5rem;
+  padding:.25rem;
+  //box-shadow: 4px 4px 4px var(--card-shadow-color);
+  border-radius: 10px;
+  user-select:none;
+  text-align:center;
+  position: relative;
+  color:inherit;
+  text-decoration:none;
+  overflow:hidden;
+}
 .file-items{
   display:flex;
   flex-direction:column;
@@ -256,6 +321,11 @@ export default {
   .file-item{
     margin-bottom:.35rem;
   }
+}
+
+.upload-modal .modal-dialog .file-item{
+  min-width:40vw;
+  margin:.2rem;
 }
 
 .fullscreen{

@@ -1,12 +1,19 @@
 <template>
   <div class="file-item" href="#">
-    <div class="file-item-name"><a :href="url">{{filename}}</a></div>
-    <div class="file-item-details">
-    <span class="file-item-size">Size: {{parseSize(size)}}</span>
-    &nbsp;
-    <span class="file-item-size">Owner: {{owner}}</span>
+    <div class="file-item-name">
+      <a :href="url">{{filename}}</a>
     </div>
-    <button @click="emitDelete" class="file-item-delete">X</button>
+    <div class="file-item-details">
+    <span class="file-item-size">Size: {{parsedSize}}</span>
+    &nbsp;
+    <span class="file-item-size" v-if="owner">Owner: {{owner}}</span>
+    </div>
+    <div class="file-item-buttons">
+    <span class="file-item-button" v-if="status">
+      {{statusIcon}}
+    </span>
+    <button @click="emitDelete" class="file-item-button">X</button>
+    </div>
   </div>
 </template>
 
@@ -18,21 +25,47 @@ export default {
   ],
   props: {
     filename: String,
+    // File size in bytes
     size: Number,
+    // File location
     url: String,
-    owner: String
+    // Original uploader
+    owner: String,
+    // Status used exclusively by upload modal
+    status:{
+      required:false,
+      type: String,
+      validator(v){
+        return ["not-started", "in-progress", "completed"].includes(v);
+      }
+    },
+    progress:{
+      required:false,
+      type: Number,
+    }
   },
   methods:
   {
     emitDelete()
     {
       this.$emit("delete");
+    }
+  },
+  computed:
+  {
+    statusIcon(){
+      if(this.status === "not-started")
+        return "";
+      else if(this.status === "in-progress")
+        return this.progress+"%";
+      else
+        return "done";
     },
-    parseSize(bytes)
+    parsedSize()
     {
       const steps = ["bytes","KiB", "MiB", "GiB", "TiB", "PiB"];
 
-      let size = bytes;
+      let size = this.size;
       let step=0;
       for(step=0;step<steps.length;step++)
       {
@@ -72,18 +105,22 @@ export default {
   text-overflow:ellipsis;
   a{color:inherit;}
 }
-.file-item-delete
+.file-item-buttons
 {
   position: absolute;
   top:4px;
   right:4px;
   background-color:inherit;
-  border:none;
-  color: var(--secondary-fg-color);
-  cursor:pointer;
-  &:hover{
-    font-weight:bold;
-    color: var(--fg-color);
+  .file-item-button
+  {
+    background-color:inherit;
+    border:none;
+    color: var(--secondary-fg-color);
+    cursor:pointer;
+    &:hover{
+      font-weight:bold;
+      color: var(--fg-color);
+    }
   }
 }
 
