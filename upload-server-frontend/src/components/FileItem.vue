@@ -12,7 +12,7 @@
     <span class="file-item-button" v-if="status">
       {{statusIcon}}
     </span>
-    <button @click="emitDelete" class="file-item-button">X</button>
+    <button @click="emitDelete" class="file-item-button" v-show="canDelete">X</button>
     </div>
   </div>
 </template>
@@ -53,6 +53,9 @@ export default {
   },
   computed:
   {
+    canDelete(){
+      return !this.status || this.status === "not-started";
+    },
     statusIcon(){
       if(this.status === "not-started")
         return "";
