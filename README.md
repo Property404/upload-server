@@ -1,11 +1,19 @@
 # Upload Server
-Upload service backend (Node + Express) and frontend (Vue)  
+Multi-user upload service, including backend and frontend components.  
 Requires Nginx or another reverse proxy  
+
+## Features
+* Upload, view, and delete files  
+* Administrative and vanilla user types  
+* Non-admin users can only index their own uploaded files  
+* Secret URL generation  
+* Dark and light themes  
 
 ## Backend Setup
 `npm install`  
-`node dbif.js --add-admin <admin_username>`  
-`<enter desired password>`  
+`node dbif.js --add-admin`  
+`Username>`   
+`Password>`   
 `node app.js [port]` or `forever app.js [port]`  
 
 Frontend setup instructions are located in the frontend directory  
