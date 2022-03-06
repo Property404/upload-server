@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <div class="head">
-      <button class="emoji-shadow-button" @click="showUploadModal">📤</button>
+      <button class="emoji-shadow-button" @click="showUploadModalBox">📤</button>
       <button class="emoji-shadow-button" @click="logout">exit</button>
     </div>
     <div class="file-items">
@@ -16,7 +16,7 @@
       :owner="file.owner_name"
       />
     </div>
-    <Modal title="Upload" ref="upload_modal" class="upload-modal">
+    <ModalBox title="Upload" ref="upload_modal" class="upload-modal">
       <template v-slot:body>
         <FileItem
         v-for="file in files_to_be_uploaded"
@@ -41,12 +41,12 @@
         </label>
         <button @click.prevent="upload" class="button-primary" :disabled="disable_upload_button">Upload</button>
       </template>
-    </Modal>
-    <Modal title="Error" ref="error_modal">
+    </ModalBox>
+    <ModalBox title="Error" ref="error_modal">
       <template v-slot:body>
         {{general_error_message}}
       </template>
-    </Modal>
+    </ModalBox>
     <div v-if="loading" id="entry-backdrop">
     </div>
     <div id="login-screen" v-if="needs_auth">
@@ -63,7 +63,7 @@
 
 <script>
 import FileItem from './components/FileItem.vue'
-import Modal from './components/Modal.vue'
+import ModalBox from './components/ModalBox.vue'
 import Axios from "axios";
 
 // For local testing, use separate port
@@ -105,7 +105,7 @@ export default {
     {
       return `${file_base_url}/${id}`
     },
-    showUploadModal()
+    showUploadModalBox()
     {
       this.files_to_be_uploaded = null;
       this.disable_upload_button = true;
@@ -260,7 +260,7 @@ export default {
   },
   components: {
     FileItem,
-    Modal
+    ModalBox
   }
 }
 </script>

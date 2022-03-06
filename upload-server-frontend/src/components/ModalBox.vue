@@ -18,7 +18,7 @@
 
 <script>
     export default{
-        name: "Modal",
+        name: "ModalBox",
         data(){
             return{
                 visible:false
