@@ -1,25 +1,37 @@
 # Upload Server
-Multi-user upload service, including backend and frontend components.  
-Requires Nginx or another reverse proxy  
+
+Multi-user upload service, including backend and frontend components.
+Requires Nginx or another reverse proxy.
 
 ## Features
-* Upload, view, and delete files  
-* Administrative and vanilla user types  
-* Non-admin users can only index their own uploaded files  
-* Secret URL generation  
-* Dark and light themes  
+
+* Upload, view, and delete files
+* Administrative and vanilla user types
+* Non-admin users can only index their own uploaded files
+* Secret URL generation
+* Dark and light themes
 
 ## Backend Setup
-`npm install`  
-`node dbif.js --add-admin`  
-`Username>`   
-`Password>`   
-`node app.js [port]` or `forever app.js [port]`  
 
-Frontend setup instructions are located in the frontend directory  
+Upon running the app for the first time, you will be prompted to create an
+admin account.
+
+```
+$ npm install
+...
+$ node app.js
+Username> admin
+Password> ********
+$ node app.js [port] # or use `forever node app.js [port]`
+Launching on port [port]
+```
+
+Frontend setup instructions are located in the frontend directory
 
 ## Nginx Example Setup
-Assuming port 1234  
+
+Assuming port 1234
+
 ```
 server{
         server_name <subdomain>.<domain>.<TLD>;
@@ -42,4 +54,5 @@ server{
 ```
 
 ## License
+
 MIT
