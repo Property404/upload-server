@@ -41,12 +41,6 @@ function isAuthorized(request)
 	return request.session.auth?.user_id != null;
 }
 
-function isAdmin(request)
-{
-	return isAuthorized(request) &&
-		request.session.is_admin === true;
-}
-
 // Serve public folder
 app.use('/files', express.static("uploads"));
 
@@ -155,7 +149,6 @@ app.get('/files', function (req, res){
 	.catch(err=>{
 		res.status(400).send(apimsg(err));
 	});
-;
 });
 
 // Fetch file
@@ -170,7 +163,7 @@ function fetchFile(res, id_requested, name_requested)
 		}
 		if(name_requested != result.name)
 		{
-			res.status(404).send("Mismatch");;
+			res.status(404).send("Mismatch");
 			return;
 		}
 		const mime_type = mime.lookup(name_requested) ||

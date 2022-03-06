@@ -271,7 +271,7 @@ async function addUserInteractively(admin)
 {
 	let username;
 	let password;
-	while(true)
+	for(;;)
 	{
 		username = readline.question("Username> ");
 		password = readline.question("Password> ", {
