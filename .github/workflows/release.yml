@@ -1,0 +1,38 @@
+---
+name: Release CI
+
+# yamllint disable-line rule:truthy
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Build backend
+        run: npm install
+      - name: Build frontend
+        run: |
+          cd upload-server-frontend
+          npm install
+          npm run build
+          cd ..
+      - name: Package
+        run: |
+          mkdir -p upload-server/upload-server-backend/
+          cp ./*.js upload-server/upload-server-backend/
+          cp node_modules upload-server/upload-server-backend/
+          cp upload-server-frontend/dist/ upload-server/upload-server-frontend
+          tar czf upload-server.tar.gz upload-server
+      - name: Create Release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: upload-server.tar.gz
+          generateReleaseNotes: true
+          body: Look at me I'm a release haha

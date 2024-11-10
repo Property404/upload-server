@@ -1,6 +1,7 @@
 *
-!static
-!static/**/
+!.github
+!.github/**/
+!*.yml
 !*.js
 !*.map
 !*.mjs
