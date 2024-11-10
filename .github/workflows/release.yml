@@ -27,8 +27,8 @@ jobs:
         run: |
           mkdir -p upload-server/upload-server-backend/
           cp ./*.js upload-server/upload-server-backend/
-          cp node_modules upload-server/upload-server-backend/
-          cp upload-server-frontend/dist/ upload-server/upload-server-frontend
+          cp -r node_modules upload-server/upload-server-backend/
+          cp -r upload-server-frontend/dist/ upload-server/upload-server-frontend
           tar czf upload-server.tar.gz upload-server
       - name: Create Release
         uses: ncipollo/release-action@v1
