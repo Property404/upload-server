@@ -1,6 +1,6 @@
 {
   "name": "uploadserver",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "private": true,
   "description": "Dagan's uploadserver",
   "main": "app.js",
